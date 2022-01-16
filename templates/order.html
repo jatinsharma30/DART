@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="container">
+    <div class="container w-75 my-4">
+        <h1>Order</h1>
+    <form action={% url 'order' %} method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="customerName" class="form-label">Customer Name</label>
+          <input type="text" name="customerName" class="form-control" id="customerName" aria-describedby="customerName" required>
+        </div>
+        <div class="mb-3">
+          <label for="phone" class="form-label">phone</label>
+          <input type="number" name="phone" class="form-control" id="phone" required>
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">email</label>
+          <input type="email" name="email" class="form-control" id="email" >
+        </div>
+        <div class="mb-3">
+            <label for="product" class="form-label">product</label>
+            
+            <input class="form-control dropdown-toggle"  oninput="update()" id="product" placeholder="Type to search..." data-bs-toggle="dropdown" >
+            <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+                {% for product in products %}
+                <li><a class="dropdown-item" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>
+                {% endfor %}
+              </ul>  
+              <input type="hidden" id="hidden" name="items" value="">
+        </div>
+        <div class="mb-3">
+            <label for="totalCost" class="form-label">Total amount</label>
+            <b><span id="totalCost">0</span></b>
+          </div>
+        <button type="submit" class="btn btn-primary">order</button>
+      </form>
+    </div>
+    <hr>
+    <div class="container" >
+        <h2>Order Details:</h2>
+        <div class="row">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Product</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Price</th>
+                <th scope="col">total</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody id="orderDetails">
+              
+            </tbody>
+          </table>
+        </div>
+    </div>
+</div>
+{% endblock body %}
+{% block js %}
+<script>
+    // to cancel on reload form resubmit request
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+
+    // search product
+    function update() {
+        let productInput=document.getElementById('product');
+        let dropdownMenu=document.getElementById('dropdown-menu');
+        let els=document.getElementsByClassName('dropdown-item');
+        for(var i = 0; i < els.length; i++){
+                if (els[i].innerHTML.search(productInput.value)!=-1) {
+                    els[i].style.display='block';
+                }else{
+                    els[i].style.display='none';
+                }
+            }
+        // console.log(productInput.value);
+        }
+      let itemCount=0;
+      let items={};
+      let hidden=document.getElementById('hidden');
+      let totalCost=parseFloat(0);
+      let finalSum=document.getElementById('totalCost');
+
+      function updateList(id,product,price) {
+        let orderDetails=document.getElementById('orderDetails');
+        if (!document.getElementById(`item-${id}`)){
+          orderDetails.innerHTML+=`<tr class="table-secondary" id="item-${id}">
+                                  <td>${product}</td>
+                                  <td><button class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
+                                  <td>${price}</td>
+                                  <td id="total-${id}">${price}</td>
+                                  <td><button class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
+                                </tr>`
+         itemCount+=1;
+         items[id]=1;
+         hidden.value=JSON.stringify(items);
+         totalCost=totalCost+parseFloat(price);
+         finalSum.innerText=totalCost;
+        }
+                               
+    }  
+
+    function removeItem(id) {
+      console.log(id)
+      let item=document.getElementById(`item-${id}`);
+      itemCount-=1;
+      delete items[id]
+      hidden.value=JSON.stringify(items);
+      let itemTotalCost=document.getElementById(`total-${id}`);
+      totalCost=totalCost-parseFloat(itemTotalCost.innerText);
+      finalSum.innerText=totalCost;
+      item.remove();
+    }
+    function add(id,price) {
+      let qty=document.getElementById(`qty-${id}`);
+      let count=parseInt(qty.innerText);
+      qty.innerText=count+1;
+      // change total cost
+      let total=document.getElementById(`total-${id}`);
+      let totalPrice=parseFloat(total.innerText);
+      total.innerText=totalPrice+price;
+      items[id]=count+1;
+      hidden.value=JSON.stringify(items);
+      totalCost=totalCost+price;
+      finalSum.innerText=totalCost;
+    }
+    function subtract(id,price) {
+      let qty=document.getElementById(`qty-${id}`);
+      let count=parseInt(qty.innerText);
+      if (count==1) {
+        removeItem(id);
+      }
+      qty.innerText=count-1;
+      // change total cost
+      let total=document.getElementById(`total-${id}`);
+      let totalPrice=parseFloat(total.innerText);
+      total.innerText=totalPrice-price;
+      items[id]=count-1;
+      hidden.value=JSON.stringify(items);
+      totalCost=totalCost-price;
+      finalSum.innerText=totalCost;
+    }
+    </script>
+{% endblock js %}
