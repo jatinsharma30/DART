@@ -15,10 +15,6 @@ def home(request):
     todaySale=Order.objects.getOrderAmountByDate(date.today(),date.today())
     totalSale=Order.objects.getOrderAmountByDate()
     thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today())
-    product=Product.objects.get(id=1).productSales()
-    getOrderPerDate=Order.objects.getOrderPerDate(date(2022,1,15),date.today())
-    print(getOrderPerDate)
-    print(product)
     param={'todaySale':todaySale,'totalSale':totalSale,'thisMonthSale':thisMonthSale}
     return render(request,'home.html',param)
 
