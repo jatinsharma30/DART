@@ -10,9 +10,31 @@
 
     <title></title>
     <style>
-        body{
-            font-size: larger;
-        }
+        
+        body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+  body{
+              font-size: 1.2rem;
+              width: 100%;
+          }
+    
+.row {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+* {
+    box-sizing: inherit;
+}
     </style>
     {% block css %}{% endblock css %}
   </head>

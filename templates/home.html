@@ -9,27 +9,27 @@
 </style>
 {% endblock css %}
 {% block body %}
-<div class="container">
+<div class="container" >
     {{order}}
     <div class="row my-4">
-        <div class="col-3">
-            <div class="card" style="width: 18rem;">
+        <div class="col-sm-3">
+            <div class="card" >
                 <div class="card-body">
                   <h5 class="card-title text-center">Today's sale</h5>
                   <p class="text-center text-light"><b class="card-text">Rs. <span>{{todaySale}}</span></b></p>
                 </div>
               </div>
         </div>
-        <div class="col-3">
-            <div class="card" style="width: 18rem;">
+        <div class="col-sm-3">
+            <div class="card" >
                 <div class="card-body">
                   <h5 class="card-title text-center">Total Sale</h5>
                   <p class="text-center text-light"><b class="card-text">Rs. <span>{{totalSale}}</span></b></p>
                 </div>
               </div>
         </div>
-        <div class="col-3">
-            <div class="card" style="width: 18rem;">
+        <div class="col-sm-3">
+            <div class="card" >
                 <div class="card-body">
                   <h5 class="card-title text-center">This Month</h5>
                   <p class="text-center text-light"><b class="card-text">Rs. <span>{{thisMonthSale}}</span></b></p>
@@ -47,16 +47,17 @@
             <b><span>Enter ending Date</span></b>
         <input type="date" name="start" id="endDate" >
     </div>
-        <div class="col">
+        <div class="col-md">
             <button class="btn btn-secondary" onclick="getLineBar()">fetch</button>
     </div>
     </div>
-    <div class="row my-4" id="barChartContainer">
-        <canvas id="barChart" width="50" height="15"></canvas>
-    </div>
-    <br>
-    <div class="row my-4" id="lineChartContainer">
-        <canvas id="lineChart" width="50" height="15"></canvas>
+    <div class="row my-4" style="max-width: 100%;max-height: 20vh;" >
+        <div class="col-6" id="barChartContainer">
+            <canvas id="barChart" ></canvas>
+        </div>
+        <div class="col-6" id="lineChartContainer">
+            <canvas id="lineChart" ></canvas>
+        </div>
     </div>
     <br>
     <div class="row">
@@ -72,7 +73,7 @@
             <button class="btn btn-secondary" onclick="getDonut()">fetch</button>
     </div>
     </div>
-    <div class="row my-4" id="donutChartContainer" style="position: relative; height:10vh; width:50vw;margin: auto;">
+    <div class="row my-4" id="donutChartContainer" style="position: relative; height:15vh; width:25vw;">
         <canvas id="donutChart" width="5" height="5"></canvas>
     </div>
 </div>
