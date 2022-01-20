@@ -14,15 +14,19 @@
     @media only screen and (max-width: 767px) {
         /* phones */
         body{
-          font-size:x-small;
+          font-size:smaller;
         }
         .container{
-          width: 100vw;
+          width: 100vw !important;
           margin: 0;
         }
         .orderDetails{
-          width: 100vw;
-          margin: auto;
+          width: 100% !important;
+        }
+        .row{
+          margin: 0;
+          width: 100% !important  ;
+          padding: 0;
         }
     }
 
@@ -39,7 +43,7 @@
         <div class="row">
         <div class="col-sm"><b>customer Name: </b><span>{{order.customer.name}}</span></div>
         <div class="col-sm"><b>customer phone: </b><span>{{order.customer.phone}}</span></div>
-        <div class="col-sm"><b>customer email: </b><span>{{order.customer.email}}</span></div>
+        <div class="col-sm" id="email"><b>customer email: </b><span>{{order.customer.email}}</span></div>
         </div>
         <div class="row">
             <div class="col-sm-4">
@@ -47,7 +51,7 @@
         </div>
         <div class="col-sm"><b>Time: </b><span>{{order.date_created}}</span></div>
         </div>
-        <div class="row">
+        <div class="row mx-0">
             <table class="table table-striped table-hover">
                 <thead>
                   <tr>
