@@ -1,5 +1,38 @@
 {% extends 'base.html' %}
 {% block orderActive %}active{% endblock orderActive %}
+{% block css %}
+<style>
+  @media only screen and (min-width: 768px) {
+            /* tablets and desktop */
+        }
+
+        @media only screen and (max-width: 767px) {
+            /* phones */
+            body{
+              font-size: 1rem;
+            }
+            #orderList{
+              font-size: smaller;
+            }
+            #orderList button{
+              font-size: smaller;
+            }
+            #btn{
+              padding: 0 5px;
+              margin: 0;
+            }
+            #btnCancel{
+              padding: 0 5px;
+              margin: 0 3px;
+            }
+        }
+
+        @media only screen and (max-width: 767px) and (orientation: portrait) {
+            /* portrait phones */
+            
+        }
+</style>
+{% endblock css %}
 {% block body %}
 <div class="container">
     <div class="container w-75 my-4">
@@ -37,7 +70,7 @@
       </form>
     </div>
     <hr>
-    <div class="container" >
+    <div class="container" id="orderList">
         <h2>Order Details:</h2>
         <div class="row">
           <table class="table table-hover">
@@ -90,10 +123,10 @@
         if (!document.getElementById(`item-${id}`)){
           orderDetails.innerHTML+=`<tr class="table-secondary" id="item-${id}">
                                   <td>${product}</td>
-                                  <td><button class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
+                                  <td><button id="btn" class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button id="btn" class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
                                   <td>${price}</td>
                                   <td id="total-${id}">${price}</td>
-                                  <td><button class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
+                                  <td><button id="btnCancel" class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
                                 </tr>`
          itemCount+=1;
          items[id]=1;
