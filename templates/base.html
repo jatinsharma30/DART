@@ -7,7 +7,11 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
+     <!-- Google Fonts -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Mochiy+Pop+P+One&display=swap" rel="stylesheet">
+     
     <title></title>
     <style>
         
@@ -17,7 +21,11 @@
     width: 100%;
     height: 100%;
     box-sizing: border-box;
+  font-family: "Open Sans", sans-serif;
+  color: #444444;
+
 }
+
   body{
               font-size: 1.2rem;
               width: 100%;
@@ -51,13 +59,16 @@
                 <a class="nav-link {% block homeActive %}{% endblock homeActive %}" aria-current="page" href={% url 'home' %}>Home</a>
               </li>
               <li class="nav-item">
+                <a class="nav-link {% block reportActive %}{% endblock reportActive %}" aria-current="page" href={% url 'report' %}>Report</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link {% block orderActive %}{% endblock orderActive %}" href={% url 'order' %}>Order</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% block productActive %}{% endblock productActive %}" href="{% url 'product' %}">Products</a>
+                <a class="nav-link {% block productActive %}{% endblock productActive %}" href="{% url 'product' %}">Inventory</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link {% block historyActive %}{% endblock historyActive %}" href="{% url 'order-history' %}">History</a>
+                <a class="nav-link {% block historyActive %}{% endblock historyActive %}" href="{% url 'order-history' %}">Order History</a>
               </li>
               {% comment %} <li class="nav-item">
                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>

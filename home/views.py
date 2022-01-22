@@ -11,12 +11,16 @@ from datetime import datetime
 
 # Create your views here.
 @login_required
-def home(request):
+def report(request):
     todaySale=Order.objects.getOrderAmountByDate(date.today(),date.today())
     totalSale=Order.objects.getOrderAmountByDate()
     thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today())
     param={'todaySale':todaySale,'totalSale':totalSale,'thisMonthSale':thisMonthSale}
-    return render(request,'home.html',param)
+    return render(request,'report.html',param)
+
+@login_required
+def home(request):
+    return render(request,'home.html')
 
 def handleLogin(request):
     if request.method=='POST':
@@ -93,7 +97,7 @@ def product(request):
 
 @login_required
 def orderHistory(request):
-    orders=Order.objects.all()
+    orders=Order.objects.all().order_by('-date_created')
     param={'orders':orders}
     return render(request,'order-history.html',param)
 
