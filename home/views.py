@@ -14,8 +14,22 @@ from datetime import datetime
 def report(request):
     todaySale=Order.objects.getOrderAmountByDate(date.today(),date.today())
     totalSale=Order.objects.getOrderAmountByDate()
+    onlineSale=Order.objects.getOnlineSale()
+    offlineSale=Order.objects.getOfflineSale()
+    dineInSale=Order.objects.getDineInSale()
+    takeawaySale=Order.objects.getTakeawaySale()
     thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today())
-    param={'todaySale':todaySale,'totalSale':totalSale,'thisMonthSale':thisMonthSale}
+    paymentMethods=Order.objects.getPaymentMethodsSale()
+    param={
+        'todaySale':todaySale,
+        'totalSale':totalSale,
+        'thisMonthSale':thisMonthSale,
+        'onlineSale':onlineSale,
+        'offlineSale':offlineSale,
+        'dineInSale':dineInSale,
+        'takeawaySale':takeawaySale,
+        'paymentMethods':paymentMethods
+        }
     return render(request,'report.html',param)
 
 @login_required
@@ -26,7 +40,7 @@ def handleLogin(request):
     if request.method=='POST':
         email=request.POST['email']
         password=request.POST['password']
-        print(email,password)
+        # print(email,password)
         try:
             user=User.objects.get(email=email)
             if user.check_password(password):
@@ -64,10 +78,16 @@ def order(request):
     if request.method=='POST':
         customerName=request.POST['customerName']
         phone=request.POST['phone']
+        saleOptions=request.POST['saleOptions']
+        # print(saleOptions)
+        paymentOptions=request.POST['paymentOptions']
+        # print(paymentOptions)
+        order_state=request.POST.get('order_state','Dine in')
+        # print(saleOptions,order_state,paymentOptions)
         email=request.POST.get('email','')
         customer=Customer.objects.create(name=customerName,phone=phone,email=email)
         customer.save()
-        order=Order.objects.create(customer=customer)
+        order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions)
         order.save()
 
         items=request.POST['items']
@@ -76,7 +96,7 @@ def order(request):
             product=Product.objects.get(id=int(item))
             orderProduct=OrderProduct.objects.create(order=order,product=product,quantity=items[item])
             orderProduct.save()
-            print(int(item),items[item])
+            # print(int(item),items[item])
     products=Product.objects.all()
     param={'products':products}
     return render(request,'order.html',param)
@@ -111,7 +131,7 @@ def getProductsSale(request):
         products=Product.objects.all()
         for product in products:
             data[product.name]=product.productSales(start,end)
-        print(data)
+        # print(data)
         data={'labels':list(data.keys()),'data':list(data.values())}
         return JsonResponse(data)
 

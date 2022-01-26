@@ -70,11 +70,85 @@ class OrderManager(models.Manager):
             start+= timedelta(days=1)
         data={'labels':list(data.keys()),'data':list(data.values())}
         return JsonResponse(data)
-        
+    
+    def getTotalSaleByQuery(self,qs):
+        total=0
+        for q in qs:
+            total+=q.total()
+        return total
+
+    def getOnlineSale(self):
+        qs=self.get_queryset().filter(saleType='Online Sale')
+        count=qs.count()
+        total=self.getTotalSaleByQuery(qs)
+        res={"count":count,'total':total}
+        return res
+    def getOfflineSale(self):
+        qs=self.get_queryset().filter(saleType='Offline Sale')
+        count=qs.count()
+        total=self.getTotalSaleByQuery(qs)
+        res={"count":count,'total':total}
+        return res
+    def getDineInSale(self):
+        qs=self.get_queryset().filter(orderState='Dine in')
+        count=qs.count()
+        total=self.getTotalSaleByQuery(qs)
+        res={"count":count,'total':total}
+        return res
+    def getTakeawaySale(self):
+        qs=self.get_queryset().filter(orderState='Takeaway')
+        count=qs.count()
+        total=self.getTotalSaleByQuery(qs)
+        res={"count":count,'total':total}
+        return res
+    def getPaymentMethodsSale(self):
+        count=self.get_queryset().all().count()
+        qsCash=self.get_queryset().filter(payment_method='Cash')
+        cashCount=(qsCash.count()/count)*100
+        qsAmazonPay=self.get_queryset().filter(payment_method='Amazon Pay')
+        amazonCount=(qsAmazonPay.count()/count)*100
+        qsGooglePay=self.get_queryset().filter(payment_method='Google Pay')
+        googleCount=(qsGooglePay.count()/count)*100
+        qsPaytm=self.get_queryset().filter(payment_method='Paytm')
+        paytmCount=(qsPaytm.count()/count)*100
+        qsCard=self.get_queryset().filter(payment_method='Card')
+        cardCount=(qsCard.count()/count)*100
+        res={
+            'cashCount':cashCount,
+            'cashTotal':self.getTotalSaleByQuery(qsCash),
+            'amazonCount':amazonCount,
+            'amazonTotal':self.getTotalSaleByQuery(qsAmazonPay),
+            'googleCount':googleCount,
+            'googleTotal':self.getTotalSaleByQuery(qsGooglePay),
+            'cardCount':cardCount,
+            'cardTotal':self.getTotalSaleByQuery(qsCard),
+            'paytmCount':paytmCount,
+            'paytmTotal':self.getTotalSaleByQuery(qsPaytm)
+        }
+        return res
               
 class Order(models.Model):
     customer = models.ForeignKey(Customer,on_delete=models.SET_NULL,null=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
+    saleChoices=(
+        ('Online Sale','Online Sale'),
+        ('Offline Sale','Offline Sale')
+    )
+    saleType=models.CharField(choices=saleChoices,default='Offline Sale',max_length=15)
+    orderStateChoices=(
+        ('Dine in','Dine in'),
+        ('Takeaway','Takeaway')
+    )
+    orderState=models.CharField(choices=orderStateChoices,default='Dine in',max_length=15)
+    paymentChoices=(
+        ('Cash','Cash'),
+        ('Amazon Pay','Amazon Pay'),
+        ('Google Pay','Google Pay'),
+        ('Paytm','Paytm'),
+        ('Card','Card')
+    )
+    payment_method=models.CharField(choices=paymentChoices,default='Cash',max_length=15)
+
     objects=OrderManager()
 
     def total(self):

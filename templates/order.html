@@ -62,6 +62,34 @@
               </ul>  
               <input type="hidden" id="hidden" name="items" value="">
         </div>
+        <div class="form-check form-check-inline mb-2">
+          <input class="form-check-input" type="radio" name="saleOptions" id="offline" value="Offline Sale" checked onclick="check()">
+          <label class="form-check-label" for="offline">Offline Sale</label>
+        </div>
+        <div class="form-check form-check-inline mb-2">
+          <input class="form-check-input" type="radio" name="saleOptions" id="online" value="Online Sale" onclick="check()">
+          <label class="form-check-label" for="online">Online Sale</label>
+        </div>
+        <div class="mb-2" id="order_state_container">
+          <div class="row">
+            <div class="col">
+                <div class="d-inline-block me-1">Dine In</div>
+                <div class="form-check form-switch d-inline-block">
+                    <input type="checkbox" class="form-check-input" id="order_state" style="cursor: pointer;" name="order_state" value="Takeaway">
+                    <label for="order_state" class="form-check-label">Takeaway</label>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-2">
+          <select class="form-select" aria-label="paymentOptions" name="paymentOptions">
+            <option selected value="Cash">Cash</option>
+            <option value="Amazon Pay">Amazon Pay</option>
+            <option value="Paytm">Paytm</option>
+            <option value="Google Pay">Google Pay</option>
+            <option value="Card">Card</option>
+          </select>
+      </div>
         <div class="mb-3">
             <label for="totalCost" class="form-label">Total amount</label>
             <b><span id="totalCost">0</span></b>
@@ -176,6 +204,20 @@
       hidden.value=JSON.stringify(items);
       totalCost=totalCost-price;
       finalSum.innerText=totalCost;
+    }
+    
+    // on online sale dont show dine in and takeway option
+    function check() {
+      let online=document.getElementById('online');
+      let offline=document.getElementById('offline');
+      let order_state_container=document.getElementById('order_state_container');
+      let order_state=document.getElementById('order_state');
+      if(online.checked){
+        order_state_container.style.display="none";
+        order_state.checked=true;
+      }else if(offline.checked){
+        order_state_container.style.display="block";
+      }
     }
     </script>
 {% endblock js %}
