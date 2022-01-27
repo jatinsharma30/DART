@@ -1,5 +1,3 @@
-from math import prod
-from tkinter import N
 from django.db import models
 from datetime import date,timedelta
 from django.http import JsonResponse, request
