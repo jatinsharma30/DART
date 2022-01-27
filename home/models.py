@@ -19,6 +19,7 @@ class Product(models.Model):
     qty=models.DecimalField( max_digits=10, decimal_places=2)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='product')
+    # category=models.CharField(max_length=200,null=True,blank=True)
     def productSales(self,start=None,end=None,user=None):
         sum=0
         orders=Order.objects.getOrderByDate(start,end,user)
