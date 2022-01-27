@@ -12,14 +12,14 @@ from datetime import datetime
 # Create your views here.
 @login_required
 def report(request):
-    todaySale=Order.objects.getOrderAmountByDate(date.today(),date.today())
-    totalSale=Order.objects.getOrderAmountByDate()
-    onlineSale=Order.objects.getOnlineSale()
-    offlineSale=Order.objects.getOfflineSale()
-    dineInSale=Order.objects.getDineInSale()
-    takeawaySale=Order.objects.getTakeawaySale()
-    thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today())
-    paymentMethods=Order.objects.getPaymentMethodsSale()
+    todaySale=Order.objects.getOrderAmountByDate(date.today(),date.today(),request.user)
+    totalSale=Order.objects.getOrderAmountByDate(None,None,request.user)
+    onlineSale=Order.objects.getOnlineSale(request.user)
+    offlineSale=Order.objects.getOfflineSale(request.user)
+    dineInSale=Order.objects.getDineInSale(request.user)
+    takeawaySale=Order.objects.getTakeawaySale(request.user)
+    thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today(),request.user)
+    paymentMethods=Order.objects.getPaymentMethodsSale(request.user)
     param={
         'todaySale':todaySale,
         'totalSale':totalSale,
@@ -87,7 +87,7 @@ def order(request):
         email=request.POST.get('email','')
         customer=Customer.objects.create(name=customerName,phone=phone,email=email)
         customer.save()
-        order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions)
+        order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user)
         order.save()
 
         items=request.POST['items']
@@ -97,7 +97,7 @@ def order(request):
             orderProduct=OrderProduct.objects.create(order=order,product=product,quantity=items[item])
             orderProduct.save()
             # print(int(item),items[item])
-    products=Product.objects.all()
+    products=Product.objects.filter(user=request.user)
     param={'products':products}
     return render(request,'order.html',param)
 
@@ -109,15 +109,15 @@ def product(request):
         qty=request.POST['qty']
         unit=request.POST['unit']
         description=request.POST['description']
-        product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty)
+        product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty,user=request.user)
         product.save()
-    products=Product.objects.all()
+    products=Product.objects.filter(user=request.user)
     param={'products':products}
     return render(request,'product.html',param)
 
 @login_required
 def orderHistory(request):
-    orders=Order.objects.all().order_by('-date_created')
+    orders=Order.objects.filter(user=request.user).order_by('-date_created')
     param={'orders':orders}
     return render(request,'order-history.html',param)
 
@@ -128,9 +128,9 @@ def getProductsSale(request):
         data={}
         start=dates['start']
         end=dates['end']
-        products=Product.objects.all()
+        products=Product.objects.filter(user=request.user)
         for product in products:
-            data[product.name]=product.productSales(start,end)
+            data[product.name]=product.productSales(start,end,request.user)
         # print(data)
         data={'labels':list(data.keys()),'data':list(data.values())}
         return JsonResponse(data)
@@ -143,6 +143,10 @@ def getOrderSale(request):
         start=datetime.strptime(start, '%Y-%m-%d').date()#convert string to date
         end=dates['end']
         end=datetime.strptime(end, '%Y-%m-%d').date()
-        data=Order.objects.getOrderPerDate(start,end)
+        data=Order.objects.getOrderPerDate(start,end,request.user)
         return data
 
+@login_required
+def handleLogout(request):
+    logout(request)
+    return redirect('handleLogin')

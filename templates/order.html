@@ -54,7 +54,7 @@
         <div class="mb-3">
             <label for="product" class="form-label">product</label>
             
-            <input class="form-control dropdown-toggle"  oninput="update()" id="product" placeholder="Type to search..." data-bs-toggle="dropdown" >
+            <input class="form-control dropdown-toggle"  oninput="update()" id="product" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
             <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
                 {% for product in products %}
                 <li><a class="dropdown-item" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>

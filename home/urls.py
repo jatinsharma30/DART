@@ -12,4 +12,5 @@ urlpatterns = [
     path('order-history', views.orderHistory,name='order-history'),
     path('getProductsSale', views.getProductsSale,name='getProductsSale'),
     path('getOrderSale', views.getOrderSale,name='getOrderSale'),
+    path('handleLogout', views.handleLogout,name='handleLogout'),
 ]
