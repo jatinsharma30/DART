@@ -29,7 +29,10 @@ class Product(models.Model):
     category=models.ForeignKey(ProductCategory,null=True,blank=True,on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.name} ({self.category.category})"
+        if self.category:
+            return f"{self.name} ({self.category.category})"
+        else:
+            return self.name
 
     def productSales(self,start=None,end=None,user=None):
         sum=0
