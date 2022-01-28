@@ -1,9 +1,10 @@
+from venv import create
 from django.shortcuts import render,redirect
 from django.contrib import messages 
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Customer, OrderProduct,Product,Order
+from .models import Customer, OrderProduct,Product,Order,ProductCategory
 import json
 from django.http import JsonResponse
 from datetime import date
@@ -108,11 +109,14 @@ def product(request):
         price=request.POST['price']
         qty=request.POST['qty']
         unit=request.POST['unit']
+        category=request.POST['category']
         description=request.POST['description']
-        product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty,user=request.user)
+        obj, created=ProductCategory.objects.get_or_create(user=request.user,category=category)
+        product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty,user=request.user,category=obj)
         product.save()
     products=Product.objects.filter(user=request.user)
-    param={'products':products}
+    categories=ProductCategory.objects.filter(user=request.user)
+    param={'products':products,'categories':categories}
     return render(request,'product.html',param)
 
 @login_required

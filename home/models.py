@@ -1,3 +1,4 @@
+from unicodedata import category
 from django.db import models
 from datetime import date,timedelta
 from django.http import JsonResponse, request
@@ -11,6 +12,12 @@ class Customer(models.Model):
     email = models.CharField(max_length=200, null=True,blank=True)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
 
+class ProductCategory(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    category=models.CharField(max_length=100)
+    def __str__(self):
+        return self.category
+
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True,unique=True)
     price = models.FloatField(null=True)
@@ -19,7 +26,11 @@ class Product(models.Model):
     qty=models.DecimalField( max_digits=10, decimal_places=2)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='product')
-    # category=models.CharField(max_length=200,null=True,blank=True)
+    category=models.ForeignKey(ProductCategory,null=True,blank=True,on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name} ({self.category.category})"
+
     def productSales(self,start=None,end=None,user=None):
         sum=0
         orders=Order.objects.getOrderByDate(start,end,user)
@@ -151,6 +162,9 @@ class Order(models.Model):
     payment_method=models.CharField(choices=paymentChoices,default='Cash',max_length=15)
 
     objects=OrderManager()
+
+    def __str__(self):
+        return self.id
 
     def total(self):
         totalAmount=0

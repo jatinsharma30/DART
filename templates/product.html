@@ -46,17 +46,16 @@
             <label for="floatingTextarea">description</label>
             <textarea class="form-control" placeholder="Add description" id="description" name="description"></textarea>
         </div>
-        <!-- <div class="mb-3">
+        <div class="mb-3">
           <label for="category" class="form-label">Category</label>
           
-          <input class="form-control dropdown-toggle"  oninput="update()" id="category" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+          <input class="form-control dropdown-toggle"  oninput="update()" id="category" name="category" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
           <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
-              {% for product in products %}
-              <li><a class="dropdown-item" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>
+              {% for category in categories %}
+              <li><a class="dropdown-item" onclick="updateCategoryInput('{{category.id}}','{{category.category}}')">{{category.category}}</a></li>
               {% endfor %}
-            </ul>  
-            <input type="hidden" id="hidden" name="items" value="">
-      </div> -->
+            </ul> 
+      </div>
         
         <button type="submit" class="btn btn-primary">Add</button>
       </form>
@@ -69,6 +68,7 @@
               <tr>
                 <th scope="col"></th>
                 <th scope="col">Product Name</th>
+                <th scope="col">Category</th>
                 <th scope="col">price</th>
                 <th scope="col">Quantity</th>
               </tr>
@@ -78,6 +78,11 @@
               <tr>
                 <th scope="row">{{ forloop.counter }}</th>
                 <td>{{product.name}}</td>
+                {% if product.category %}
+                <td>{{product.category}}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
                 <td>{{product.price}}</td>
                 <td>{{product.qty}} {{product.unit}}</td>
               </tr>
@@ -92,5 +97,27 @@
     if ( window.history.replaceState ) {
       window.history.replaceState( null, null, window.location.href );
     }
+
+    // search product
+    function update() {
+        let categoryInput=document.getElementById('category');
+        let els=document.getElementsByClassName('dropdown-item');
+        for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML.search(new RegExp(categoryInput.value, "i"))!=-1) {
+            els[i].style.display='block';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+        console.log(categoryInput.value);
+      }
+
+        function updateCategoryInput(id,category) {
+          let categoryInput=document.getElementById('category');
+          categoryInput.value=category;
+          categoryInput.setAttribute('value',category);
+        }
+
     </script>
 {% endblock js %}
