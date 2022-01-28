@@ -167,7 +167,7 @@ class Order(models.Model):
     objects=OrderManager()
 
     def __str__(self):
-        return self.id
+        return f"{self.id}"
 
     def total(self):
         totalAmount=0
