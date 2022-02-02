@@ -38,6 +38,12 @@
 {% endblock css %}
 {% block body %}
 <div class="container">
+  <div class="row w-75 my-4 px-2 py-2 orderDetails" style="border: none;">
+    <div class="input-group">
+      <input type="search" id="searchInput" class="form-control rounded" placeholder="Search by order id or customer name" aria-label="Search" aria-describedby="search-addon"/>
+      <button type="button" id="searchBtn" onclick=changeUrl() class="btn btn-outline-primary">search</button>
+    </div>
+  </div>
     {% for order in orders %}
     <div class="row w-75 orderDetails my-4 px-2 py-2">
         <div class="row">
@@ -47,9 +53,14 @@
         </div>
         <div class="row">
             <div class="col-sm-4">
-            <b>total: </b><span>{{order.total}}</span>
-        </div>
-        <div class="col-sm"><b>Time: </b><span>{{order.date_created}}</span></div>
+              <b>total: </b><span>{{order.total}}</span>
+            </div>
+            <div class="col-sm-4">
+              <b>Order Id: </b><span>{{order.id}}</span>
+            </div>
+            <div class="col-sm">
+              <b>Time: </b><span>{{order.date_created}}</span>
+            </div>
         </div>
         <div class="row">
           <div class="col-sm-4"><b>{{order.saleType}}</b></div>
@@ -83,4 +94,17 @@
     {% endfor %}
 </div>
 {% endblock body %}
-{% block js %}{% endblock js %}
+{% block js %}
+<script>
+  function changeUrl() {
+    let searchInput=document.getElementById('searchInput').value;
+    var url="{% url 'order-history'  %}";
+    if (searchInput!=""){
+      document.location.href = url + "/" + searchInput;
+    }else{
+      document.location.href = url; 
+    }
+
+  }
+</script>
+{% endblock js %}

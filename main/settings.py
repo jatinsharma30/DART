@@ -144,5 +144,6 @@ MESSAGE_TAGS = {
     messages.ERROR:'danger'
 }
 
+LOGIN_URL = 'handleLogin'
 #heroku stuff
 django_heroku.settings(locals())

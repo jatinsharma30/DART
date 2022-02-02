@@ -7,7 +7,10 @@
         background-color: rgb(70, 136, 236);
         margin: auto;
     }
-    #donutChartContainer{
+    #categoryDonutChart{
+        max-width: 30vw;
+    }
+    #categoryProductDonutChart{
         max-width: 30vw;
     }
     
@@ -17,7 +20,10 @@
 
         @media only screen and (max-width: 767px) {
             /* phones */
-            #donutChartContainer{
+            #categoryDonutChart{
+                max-width: 80vw;
+            }
+            #categoryProductDonutChart{
                 max-width: 80vw;
             }
             #paymentMethods{
@@ -157,7 +163,27 @@
             <input class="mt-1" type="date" name="start" id="endDate">
         </div>
         <div class="col my-2 pt-1">
-            <button class="btn btn-secondary" onclick="getLineBar()">fetch</button>
+            <button class="btn btn-secondary" onclick="getLine()">fetch</button>
+        </div>
+    </div>
+    
+    <div class="row my-4 mx-2">
+        
+        <div class="col-sm-6" id="lineChartContainer">
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+    <div class="row mx-2">
+        <div class="col-5 my-2">
+            <b><span>Enter starting Month</span></b>
+            <input class="mt-1" type="month" id="startMonth" name="startMonth" oninput="changeEndMonth()">
+        </div>
+        <div class="col-5 my-2">
+            <b><span>Enter ending Month</span></b>
+            <input class="mt-1" type="month" name="endMonth" id="endMonth">
+        </div>
+        <div class="col my-2 pt-1">
+            <button class="btn btn-secondary" onclick="getBar()">fetch</button>
         </div>
     </div>
     
@@ -180,14 +206,32 @@
             <input class="mt-1" type="date" name="start" id="endDateDonutChart">
         </div>
         <div class="col my-2 pt-1">
-            <button class="btn btn-secondary " onclick="getDonut()">fetch</button>
+            <button class="btn btn-secondary " onclick="getCategoryDonut()">fetch</button>
         </div>
     </div>
     <div class="row my-4 mx-2" >
-        <div class="col-sm-6" id="donutChartContainer">
+        <div class="col-sm-6" id="categoryDonutChart">
 
-            <canvas id="donutChart"></canvas>
+            <canvas id="categoryChart"></canvas>
+        </div>       
+    </div>
+    <div class="row my-4 mx-2" >
+        {% if categorys %}
+        <div class="row ">
+            <select class="form-select w-25" aria-label="Default select example" id="category" onchange='getCategoryProductDonut()'>
+                {% for category in categorys %}
+                    {% if forloop.first %}
+                    <option selected value={{category.id}} >{{category.category}}</option>
+                    {% else %}
+                    <option value={{category.id}}>{{category.category}}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
         </div>
+        {% endif %}
+        <div class="col-sm-6" id="categoryProductDonutChart">
+            <canvas id="categoryProductChart"></canvas>
+        </div>       
     </div>
 </div>
 {% endblock body %}
@@ -213,8 +257,8 @@
         return cookieValue;
     }
     const csrftoken = getCookie('csrftoken');
-
-    function getLineBar() {
+   
+    function getLine() {
         let startDate = document.getElementById('startDate').value;
         let endDate = document.getElementById('endDate').value;
         fetch('getOrderSale', {
@@ -223,6 +267,52 @@
             body: JSON.stringify({
                 'start': startDate,
                 'end': endDate
+            }),
+            headers: {
+                'X-CSRFToken': csrftoken,
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                let Color = randomColorGenerator(data.labels.length);
+                document.getElementById('lineChartContainer').innerHTML = `<canvas id="lineChart" width="50" height="35"></canvas>`;
+                const ctx1 = document.getElementById('lineChart');
+                // line chart
+                const myChart2 = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Total sales Rs',
+                            data: data.data,
+                            backgroundColor: Color[0],
+                            borderColor: Color[1],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+            }
+            );
+
+    }
+    function getBar() {
+        let startMonth = document.getElementById('startMonth').value;
+        let endMonth = document.getElementById('endMonth').value;
+        fetch('getOrderSaleByMonth', {
+            method: "POST",
+            body: JSON.stringify({
+                'start': startMonth,
+                'end': endMonth
             }),
             headers: {
                 'X-CSRFToken': csrftoken,
@@ -257,39 +347,17 @@
                         }
                     }
                 });
-                document.getElementById('lineChartContainer').innerHTML = `<canvas id="lineChart" width="50" height="35"></canvas>`;
-                const ctx1 = document.getElementById('lineChart');
-                // line chart
-                const myChart2 = new Chart(ctx1, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: [{
-                            label: 'Total sales Rs',
-                            data: data.data,
-                            backgroundColor: Color[0],
-                            borderColor: Color[1],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
+                
 
             }
             );
 
     }
 
-    function getDonut() {
+    function getCategoryDonut() {
         let startDate = document.getElementById('startDateDonutChart').value;
         let endDate = document.getElementById('endDateDonutChart').value;
-        fetch('getProductsSale', {
+        fetch('getCategorySale', {
             method: "POST",
             body: JSON.stringify({
                 'start': startDate,
@@ -303,8 +371,51 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                document.getElementById('donutChartContainer').innerHTML = `<canvas id="donutChart"></canvas>`;
-                const ctx2 = document.getElementById('donutChart');
+                document.getElementById('categoryDonutChart').innerHTML = `<canvas id="categoryChart"></canvas>`;
+                const ctx2 = document.getElementById('categoryChart');
+                let Color = randomColorGenerator(data.labels.length);
+                const myChart3 = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Product Sales',
+                            data: data.data,
+                            backgroundColor: Color[1],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            });
+    }
+    function getCategoryProductDonut() {
+        let startDate = document.getElementById('startDateDonutChart').value;
+        let endDate = document.getElementById('endDateDonutChart').value;
+        let category = document.getElementById('category').value;
+        fetch('getCategoryProductSale', {
+            method: "POST",
+            body: JSON.stringify({
+                'start': startDate,
+                'end': endDate,
+                'category':category
+            }),
+            headers: {
+                'X-CSRFToken': csrftoken,
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('categoryProductDonutChart').innerHTML = `<canvas id="categoryProductChart"></canvas>`;
+                const ctx2 = document.getElementById('categoryProductChart');
                 let Color = randomColorGenerator(data.labels.length);
                 const myChart3 = new Chart(ctx2, {
                     type: 'doughnut',
@@ -357,14 +468,27 @@
             let endDate = document.getElementById('endDateDonutChart');
             endDate.setAttribute('min', startDate.value)
         }
-
-
+    }
+    function changeEndMonth() {
+        let startMonth = document.getElementById('startMonth');
+        let endMonth = document.getElementById('endMonth');
+        endMonth.setAttribute('min', startMonth.value)
+        
     }
     window.onload = function () {
         let d = new Date();
         d.setDate(d.getDate() - 5);
         let start = d.toISOString().slice(0, 10);
         let end = new Date().toISOString().slice(0, 10);
+        d.setDate(d.getDate() - 5*30);
+        let startMon = d.toISOString().slice(0, 7);
+        let endMon = new Date().toISOString().slice(0, 7);
+        let startMonth = document.getElementById('startMonth');
+        startMonth.setAttribute('max', new Date().toLocaleDateString('en-ca'));
+        startMonth.value = startMon;
+        let endMonth = document.getElementById('endMonth');
+        endMonth.setAttribute('max', new Date().toLocaleDateString('en-ca'));
+        endMonth.value = endMon;
         console.log(start);
         console.log(end)
         let startDate = document.getElementById('startDate');
@@ -379,9 +503,14 @@
         let endDate1 = document.getElementById('endDateDonutChart');
         endDate1.setAttribute('max', new Date().toLocaleDateString('en-ca'));
         endDate1.value = end;
-        getDonut();
-        getLineBar()
+        getCategoryDonut();
+        {% if categorys %}
+        getCategoryProductDonut();
+        {% endif %} 
+        getBar();
+        getLine();
     }
 
 </script>
+
 {% endblock js %}

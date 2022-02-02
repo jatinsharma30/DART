@@ -40,19 +40,19 @@
     <form action={% url 'order' %} method="post">
         {% csrf_token %}
         <div class="mb-3">
-          <label for="customerName" class="form-label">Customer Name</label>
+          <label for="phone" class="form-label">phone<span class="text-danger ">*</span></label>
+          <input type="number" name="phone" class="form-control" id="phone" required oninput="checkUser()">
+        </div>
+        <div class="mb-3">
+          <label for="customerName" class="form-label">Customer Name<span class="text-danger ">*</span></label>
           <input type="text" name="customerName" class="form-control" id="customerName" aria-describedby="customerName" required>
         </div>
         <div class="mb-3">
-          <label for="phone" class="form-label">phone</label>
-          <input type="number" name="phone" class="form-control" id="phone" required>
-        </div>
-        <div class="mb-3">
           <label for="email" class="form-label">email</label>
-          <input type="email" name="email" class="form-control" id="email" >
+          <input type="email" name="email" id="customerEmail" class="form-control" id="email" >
         </div>
         <div class="mb-3">
-            <label for="product" class="form-label">product</label>
+            <label for="product" class="form-label">product<span class="text-danger ">*</span></label>
             
             <input class="form-control dropdown-toggle"  oninput="update()" id="product" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
             <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
@@ -235,5 +235,53 @@
         order_state_container.style.display="block";
       }
     }
+    
+    // csrf token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+   
+    function checkUser() {
+      let phoneNumber=document.getElementById('phone').value;
+      let customerName=document.getElementById('customerName');
+      let customerEmail=document.getElementById('customerEmail');
+        fetch('customerExist',{
+            method: "POST",
+            body: JSON.stringify({
+                'number': phoneNumber
+              }),
+            headers: {
+                'X-CSRFToken': csrftoken,
+                "Content-type": "application/json; charset=UTF-8"
+              }
+        })
+          .then(response => response.json())
+          .then(data => {
+              console.log(data);
+              if ( Object.keys(data).length!=0) {
+                customerName.value=data.name;
+                customerEmail.value=data.email;
+                console.log("y")
+              }else{
+                console.log('n');
+                customerName.value='';
+                customerEmail.value='';
+              }
+          });
+    }
+
     </script>
 {% endblock js %}

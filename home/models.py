@@ -2,11 +2,13 @@ from unicodedata import category
 from django.db import models
 from datetime import date,timedelta
 from django.http import JsonResponse, request
+import datetime
 from django.db.models import Q
 from django.contrib.auth.models import User
 
 # Create your models here.
 class Customer(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=True)
     phone = models.CharField(max_length=200, null=True)
     email = models.CharField(max_length=200, null=True,blank=True)
@@ -14,11 +16,36 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
+class ProductCategoryManager(models.Manager):
+    def categorySaleData(self,user,start,end):
+        data={}
+        q=Q(order__date_created__date__gte=start) & Q(order__date_created__date__lte=end)
+        for orderProduct in OrderProduct.objects.filter(q).filter(product__user=user): 
+            key=orderProduct.product.category.category
+            if key in data:
+                data[key]+=orderProduct.TotalCostProduct()
+            else:
+                data[key]=orderProduct.TotalCostProduct()
+        print(data)
+        return data
+
+    def productSaleByCategory(self,user,start,end,category):
+        data={}
+        for product in Product.objects.filter(category=category):
+            data[product.name]=0
+        q=Q(order__date_created__date__gte=start) & Q(order__date_created__date__lte=end)
+        for orderProduct in OrderProduct.objects.filter(q).filter(product__user=user).filter(product__category=category): 
+            key=orderProduct.product.name
+            data[key]+=orderProduct.TotalCostProduct()
+        print(data)
+        return data
+
 class ProductCategory(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     category=models.CharField(max_length=100)
+    objects=ProductCategoryManager()
     def __str__(self):
-        return self.category
+        return self.category  
 
 class Product(models.Model):
     name = models.CharField(max_length=200, null=True,unique=True)
@@ -69,6 +96,37 @@ class OrderManager(models.Manager):
         while start<=end:
             data[str(start)]=self.getOrderAmountByDate(start,start,user) 
             start+= timedelta(days=1)
+        data={'labels':list(data.keys()),'data':list(data.values())}
+        return JsonResponse(data)
+
+    def months_between(self,date_start, date_end):
+        months = []
+        # Make sure start_date is smaller than end_date
+        if date_start > date_end:
+            tmp = date_start
+            date_start = date_end
+            date_end = tmp
+
+        tmp_date = date_start
+        while tmp_date.month <= date_end.month or tmp_date.year < date_end.year:
+            months.append(tmp_date)  # Here you could do for example: months.append(datetime.datetime.strftime(tmp_date, "%b '%y"))
+
+            if tmp_date.month == 12: # New year
+                tmp_date = datetime.date(tmp_date.year + 1, 1, 1)
+            else:
+                tmp_date = datetime.date(tmp_date.year, tmp_date.month + 1, 1)
+        return months
+
+    def getOrderPerMonth(self,start=None,end=None,user=None):
+        months=self.months_between(start,end)
+        print(months)
+        data={}
+        for month in months:
+            data[f"{month.strftime('%B')} {month.year}"]=0
+            q=Q(order__date_created__year=month.year) & Q(order__date_created__month=month.month)
+            print(OrderProduct.objects.filter(q).filter(product__user=user),month.month,start.year)
+            for orderProduct in OrderProduct.objects.filter(q).filter(product__user=user):
+                data[f"{month.strftime('%B')} {month.year}"]+=orderProduct.TotalCostProduct()
         data={'labels':list(data.keys()),'data':list(data.values())}
         return JsonResponse(data)
     
