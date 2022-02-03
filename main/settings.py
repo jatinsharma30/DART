@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home',
+    'import_export'
 ]
 
 MIDDLEWARE = [
@@ -122,6 +123,7 @@ USE_L10N = True
 
 USE_TZ = True
 
+IMPORT_EXPORT_USE_TRANSACTION=True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

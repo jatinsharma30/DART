@@ -48,7 +48,7 @@ class ProductCategory(models.Model):
         return self.category  
 
 class Product(models.Model):
-    name = models.CharField(max_length=200, null=True,unique=True)
+    name = models.CharField(max_length=200, null=True)
     price = models.FloatField(null=True)
     description = models.CharField(max_length=200, null=True,blank=True)
     unit = models.CharField(max_length=50,null=True,blank=True)

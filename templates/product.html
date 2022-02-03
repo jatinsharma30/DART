@@ -27,15 +27,15 @@
     <form action={% url 'product' %} method="post">
         {% csrf_token %}
         <div class="mb-3">
-          <label for="productName" class="form-label">Product Name</label>
+          <label for="productName" class="form-label">Product Name<span class="text-danger ">*</span></label>
           <input type="text" name="productName" class="form-control" id="productName" aria-describedby="productName" required>
         </div>
         <div class="mb-3">
-          <label for="price" class="form-label">Price</label>
+          <label for="price" class="form-label">Price<span class="text-danger ">*</span></label>
           <input type="number" name="price" class="form-control" id="price" required>
         </div>
         <div class="mb-3">
-          <label for="qty" class="form-label">qty</label>
+          <label for="qty" class="form-label">qty<span class="text-danger ">*</span></label>
           <input type="number" name="qty" class="form-control" id="qty" required>
         </div>
         <div class="mb-3">
@@ -47,7 +47,7 @@
             <textarea class="form-control" placeholder="Add description" id="description" name="description"></textarea>
         </div>
         <div class="mb-3">
-          <label for="category" class="form-label">Category</label>
+          <label for="category" class="form-label">Category<span class="text-danger ">*</span></label>
           
           <input class="form-control dropdown-toggle"  oninput="update()" id="category" name="category" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
           <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
