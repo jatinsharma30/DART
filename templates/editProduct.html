@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block productActive %}active{% endblock productActive %}
+{% block css %}
+<style>
+  @media only screen and (min-width: 768px) {
+            /* tablets and desktop */
+        }
+
+        @media only screen and (max-width: 767px) {
+            /* phones */
+            body{
+              font-size: 1rem;
+            }
+        }
+
+        @media only screen and (max-width: 767px) and (orientation: portrait) {
+            /* portrait phones */
+            
+        }
+</style>
+{% endblock css %}
+
+{% block body %}
+<div class="container">
+    <div class="container w-75 my-4">
+        <h1>Edit Product</h1>
+    <form action={% url 'editProduct' product.id %} method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="productName" class="form-label">Product Name<span class="text-danger ">*</span></label>
+          <input type="text" name="productName" class="form-control" value={{product.name}} id="productName" aria-describedby="productName" required>
+        </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price<span class="text-danger ">*</span></label>
+          <input type="number" name="price" value={{product.price}} class="form-control" id="price" required>
+        </div>
+        <div class="mb-3">
+          <label for="qty" class="form-label">qty<span class="text-danger ">*</span></label>
+          <input type="number" name="qty" value={{product.qty}} class="form-control" id="qty" required>
+        </div>
+        <div class="mb-3">
+          <label for="unit" class="form-label">Unit</label>
+          <input type="text" name="unit" value='{{product.unit}}' class="form-control" id="unit" >
+        </div>
+        <div class="mb-3">
+            <label for="floatingTextarea">description</label>
+            <textarea class="form-control" value={{product.description}} placeholder="Add description" id="description" name="description"></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="category" class="form-label">Category<span class="text-danger ">*</span></label>
+          
+          <input class="form-control dropdown-toggle" value={{product.category.category}}  oninput="update()" id="category" name="category" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+          <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+              {% for category in categories %}
+              <li><a class="dropdown-item" onclick="updateCategoryInput('{{category.id}}','{{category.category}}')">{{category.category}}</a></li>
+              {% endfor %}
+            </ul> 
+      </div>
+        
+        <button type="submit" class="btn btn-primary">Edit</button>
+        <a href={% url 'product' %} class="btn btn-danger mx-2">Cancel</a>
+      </form>
+    </div>
+</div>
+{% endblock body %}
+{% block js %}
+<script>
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+
+    // search product
+    function update() {
+        let categoryInput=document.getElementById('category');
+        let els=document.getElementsByClassName('dropdown-item');
+        for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML.search(new RegExp(categoryInput.value, "i"))!=-1) {
+            els[i].style.display='block';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+        console.log(categoryInput.value);
+      }
+
+        function updateCategoryInput(id,category) {
+          let categoryInput=document.getElementById('category');
+          categoryInput.value=category;
+          categoryInput.setAttribute('value',category);
+        }
+
+    </script>
+{% endblock js %}

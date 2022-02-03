@@ -56,6 +56,7 @@ class Product(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, null=True)
     user=models.ForeignKey(User,on_delete=models.CASCADE,related_name='product')
     category=models.ForeignKey(ProductCategory,null=True,blank=True,on_delete=models.CASCADE)
+    is_active=models.BooleanField(default=True)
 
     def __str__(self):
         if self.category:

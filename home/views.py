@@ -1,4 +1,4 @@
-from unicodedata import category
+from unicodedata import category, name
 from venv import create
 from django.shortcuts import render,redirect
 from django.contrib import messages 
@@ -11,6 +11,7 @@ from django.http import JsonResponse
 from datetime import date
 from datetime import datetime
 from django.forms.models import model_to_dict
+from django.core.paginator import Paginator
 
 # Create your views here.
 @login_required
@@ -81,6 +82,7 @@ def handleLogin(request):
 @login_required
 def order(request):
     if request.method=='POST':
+        customerId=request.POST['customerId']
         customerName=request.POST['customerName']
         phone=request.POST['phone']
         saleOptions=request.POST['saleOptions']
@@ -90,10 +92,12 @@ def order(request):
         order_state=request.POST.get('order_state','Dine in')
         # print(saleOptions,order_state,paymentOptions)
         email=request.POST.get('email','')
-        try:
-            customer=Customer.objects.filter(name=customerName,phone=phone,email=email,user=request.user).first()
-        except:
+        if customerId!="":
+            customer=Customer.objects.filter(user=request.user).filter(id=customerId).update(phone=phone,name=customerName,email=email)
+            customer=Customer.objects.filter(user=request.user).filter(id=customerId).first()
+        else:
             customer=Customer.objects.create(name=customerName,phone=phone,email=email,user=request.user)
+            customer.save()
         order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user)
         order.save()
 
@@ -104,14 +108,15 @@ def order(request):
             orderProduct=OrderProduct.objects.create(order=order,product=product,quantity=items[item])
             orderProduct.save()
         # messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>",extra_tags='safe')
-        messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>")
+        messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/OrderId-{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>")
             # print(int(item),items[item])
     products=Product.objects.filter(user=request.user)
-    param={'products':products}
+    customers=Customer.objects.filter(user=request.user)
+    param={'products':products,'customers':customers}
     return render(request,'order.html',param)
 
 @login_required
-def product(request):
+def addProduct(request):
     if request.method=='POST':
         productName=request.POST['productName']
         price=request.POST['price']
@@ -122,10 +127,52 @@ def product(request):
         obj, created=ProductCategory.objects.get_or_create(user=request.user,category=category)
         product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty,user=request.user,category=obj)
         product.save()
+        messages.success(request,f"Product ({productName}) created sucessfully!")
+    # products=Product.objects.filter(user=request.user)
+    categories=ProductCategory.objects.filter(user=request.user)
+    param={'categories':categories}
+    return render(request,'addProduct.html',param)
+@login_required
+def product(request):
     products=Product.objects.filter(user=request.user)
     categories=ProductCategory.objects.filter(user=request.user)
     param={'products':products,'categories':categories}
-    return render(request,'product.html',param)
+    return render(request,'productList.html',param)
+
+@login_required
+def editProduct(request,id):
+    try:
+        product=Product.objects.get(id=id,user=request.user)
+        categories=ProductCategory.objects.filter(user=request.user)
+        if request.method=='POST':
+            productName=request.POST['productName']
+            price=request.POST['price']
+            qty=request.POST['qty']
+            unit=request.POST['unit']
+            category=request.POST['category']
+            description=request.POST['description']
+            obj, created=ProductCategory.objects.get_or_create(user=request.user,category=category)
+            print(product.price,price)
+            print(type(product.price),type(price))
+            if product.price==float(price):
+                print('update')
+                product.name=productName
+                product.description=description
+                product.unit=unit
+                product.qty=qty
+                product.category=obj
+                product.save()
+                messages.success(request,"Product edited sucessfully!")
+            else:
+                product.is_active=False
+                product.save()
+                product=Product.objects.create(name=productName,price=price,description=description,unit=unit,qty=qty,user=request.user,category=obj)
+                product.save()
+                messages.success(request,"Product edited sucessfully!")
+        param={'categories':categories,'product':product}
+        return render(request,'editProduct.html',param)
+    except Exception as e:
+        return redirect('product')
 
 @login_required
 def orderHistory(request,id=None):
@@ -133,6 +180,8 @@ def orderHistory(request,id=None):
         orders=Order.objects.filter(user=request.user).order_by('-date_created')
         if len(orders)==0:
             messages.error(request,f"No Order History")
+        param={'orders':orders}
+        return render(request,'order-history.html',param)
     else:
         print(id)
         inputType=id.split('-')[0]
@@ -151,8 +200,8 @@ def orderHistory(request,id=None):
             orders=Order.objects.filter(user=request.user).filter(id=int(id.split('-')[1]))
             if not orders:
                 messages.error(request,f"No Order with order Id- {int(id.split('-')[1])}")
-    param={'orders':orders}
-    return render(request,'order-history.html',param)
+        param={'orders':orders}
+        return render(request,'order-history.html',param)
 
 @login_required  
 def getCategoryProductSale(request):
@@ -199,16 +248,16 @@ def getOrderSaleByMonth(request):
         data=Order.objects.getOrderPerMonth(start,end,request.user)
         return data
 
-@login_required
-def customerExist(request):
-    if request.method=='POST':
-        data = json.loads(request.body)
-        number=data['number']
-        if Customer.objects.filter(user=request.user).filter(phone=number).exists():
-            responseData=Customer.objects.filter(user=request.user).filter(phone=number).first()
-            print('t')
-            return JsonResponse(model_to_dict(responseData))
-        return JsonResponse({})
+# @login_required
+# def customerExist(request):
+#     if request.method=='POST':
+#         data = json.loads(request.body)
+#         number=data['number']
+#         if Customer.objects.filter(user=request.user).filter(phone=number).exists():
+#             responseData=Customer.objects.filter(user=request.user).filter(phone=number).first()
+#             print('t')
+#             return JsonResponse(model_to_dict(responseData))
+#         return JsonResponse({})
 
 @login_required
 def handleLogout(request):

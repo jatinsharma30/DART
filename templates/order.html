@@ -35,18 +35,24 @@
 {% endblock css %}
 {% block body %}
 
-<div class="container">
+<div class="container my-3">
+  <form action={% url 'order' %} method="post">
+    {% csrf_token %}
     <div class="container w-75 my-4">
         <h1>Order</h1>
-    <form action={% url 'order' %} method="post">
-        {% csrf_token %}
         <div class="mb-3">
           <label for="phone" class="form-label">phone<span class="text-danger ">*</span></label>
           <input type="number" name="phone" class="form-control" id="phone" required oninput="checkUser()">
         </div>
         <div class="mb-3">
           <label for="customerName" class="form-label">Customer Name<span class="text-danger ">*</span></label>
-          <input type="text" name="customerName" class="form-control" id="customerName" aria-describedby="customerName" required>
+          <input class="form-control dropdown-toggle" name="customerName" id="customerName"  oninput='checkUser(this)'  placeholder="Enter Customer name" data-bs-toggle="dropdown" autocomplete="off" required>
+            <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+                {% for customer in customers %}
+                  <li><a class="dropdown-item names" onclick="updateForm('{{customer.id}}','{{customer.name}}','{{customer.phone}}','{{product.email}}')" id="{{customer.id}}">{{customer.name}}</a></li>
+                {% endfor %}
+              </ul>
+            <input type="hidden" name="customerId" id="customerId" value="">
         </div>
         <div class="mb-3">
           <label for="email" class="form-label">email</label>
@@ -59,9 +65,9 @@
             <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
                 {% for product in products %}
                 {% if product.category %}
-                <li><a class="dropdown-item" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}','{{product.category}}')" id="{{product.id}}">{{product.name}} ({{product.category}})</a></li>
+                <li><a class="dropdown-item products" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}','{{product.category}}')" id="{{product.id}}">{{product.name}} ({{product.category}})</a></li>
                 {% else %}
-                <li><a class="dropdown-item" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>
+                <li><a class="dropdown-item products" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>
                 {% endif %}
                 {% endfor %}
               </ul>  
@@ -99,13 +105,12 @@
             <label for="totalCost" class="form-label">Total amount</label>
             <b><span id="totalCost">0</span></b>
           </div>
-        <button type="submit" id="orderBtn" disabled class="btn btn-primary">order</button>
-      </form>
-    </div>
-    <hr>
-    <div class="container" id="orderList">
-        <h2>Order Details:</h2>
-        <div class="row">
+        
+        </div>
+        <hr>
+        <div class="container" id="orderList">
+          <h2>Order Details:</h2>
+          <div class="row">
           <table class="table table-hover">
             <thead>
               <tr>
@@ -122,6 +127,9 @@
           </table>
         </div>
     </div>
+    <hr>
+    <button type="submit" id="orderBtn" disabled class="btn btn-primary mr-auto">order</button>
+  </form>
 </div>
 {% endblock body %}
 {% block js %}
@@ -135,7 +143,7 @@
     function update() {
         let productInput=document.getElementById('product');
         let dropdownMenu=document.getElementById('dropdown-menu');
-        let els=document.getElementsByClassName('dropdown-item');
+        let els=document.getElementsByClassName('products');
         for(var i = 0; i < els.length; i++){
                 if (els[i].innerHTML.search(new RegExp(productInput.value, "i"))!=-1) {
                     els[i].style.display='block';
@@ -162,10 +170,10 @@
         if (!document.getElementById(`item-${id}`)){
           orderDetails.innerHTML+=`<tr class="table-secondary" id="item-${id}">
                                   <td>${product} ${category}</td>
-                                  <td><button id="btn" class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button id="btn" class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
+                                  <td><button id="btn" type="button" class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button id="btn" type="button" class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
                                   <td>${price}</td>
                                   <td id="total-${id}">${price}</td>
-                                  <td><button id="btnCancel" class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
+                                  <td><button id="btnCancel" type="button" class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
                                 </tr>`
          itemCount+=1;
          items[id]=1;
@@ -255,33 +263,54 @@
     }
     const csrftoken = getCookie('csrftoken');
    
-    function checkUser() {
-      let phoneNumber=document.getElementById('phone').value;
+    function checkUser(element) {
+      let els=document.getElementsByClassName('names');
+        for(var i = 0; i < els.length; i++){
+                if (els[i].innerHTML.search(new RegExp(element.value, "i"))!=-1) {
+                    els[i].style.display='';
+                }else{
+                    els[i].style.display='none';
+                    document.getElementById('customerId').value='';
+                }
+            }
+        // console.log(productInput.value);
+        }
+      let phoneNumber=document.getElementById('phone');
       let customerName=document.getElementById('customerName');
       let customerEmail=document.getElementById('customerEmail');
-        fetch('customerExist',{
-            method: "POST",
-            body: JSON.stringify({
-                'number': phoneNumber
-              }),
-            headers: {
-                'X-CSRFToken': csrftoken,
-                "Content-type": "application/json; charset=UTF-8"
-              }
-        })
-          .then(response => response.json())
-          .then(data => {
-              console.log(data);
-              if ( Object.keys(data).length!=0) {
-                customerName.value=data.name;
-                customerEmail.value=data.email;
-                console.log("y")
-              }else{
-                console.log('n');
-                customerName.value='';
-                customerEmail.value='';
-              }
-          });
+      // }
+      //   {% comment %} fetch('customerExist',{
+      //       method: "POST",
+      //       body: JSON.stringify({
+      //           'number': phoneNumber
+      //         }),
+      //       headers: {
+      //           'X-CSRFToken': csrftoken,
+      //           "Content-type": "application/json; charset=UTF-8"
+      //         }
+      //   })
+      //     .then(response => response.json())
+      //     .then(data => {
+      //         console.log(data);
+      //         if ( Object.keys(data).length!=0) {
+      //           customerName.value=data.name;
+      //           customerEmail.value=data.email;
+      //           console.log("y")
+      //         }else{
+      //           console.log('n');
+      //           customerName.value='';
+      //           customerEmail.value='';
+      //         }
+      //     }); {% endcomment %}
+    
+    function updateForm(id,name,phone,email) {
+      let phoneNumber=document.getElementById('phone');
+      let customerName=document.getElementById('customerName');
+      let customerEmail=document.getElementById('customerEmail');
+      phoneNumber.value=phone;
+      customerName.value=name;
+      customerEmail.value=email;
+      document.getElementById('customerId').value=id;
     }
 
     </script>

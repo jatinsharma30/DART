@@ -147,5 +147,7 @@ MESSAGE_TAGS = {
 }
 
 LOGIN_URL = 'handleLogin'
+
+TIME_ZONE =  'Asia/Kolkata'
 #heroku stuff
 django_heroku.settings(locals())

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block productActive %}active{% endblock productActive %}
+{% block css %}
+<style>
+  @media only screen and (min-width: 768px) {
+            /* tablets and desktop */
+        }
+
+        @media only screen and (max-width: 767px) {
+            /* phones */
+            body{
+              font-size: 1rem;
+            }
+        }
+
+        @media only screen and (max-width: 767px) and (orientation: portrait) {
+            /* portrait phones */
+            
+        }
+</style>
+{% endblock css %}
+
+{% block body %}
+<div class="container">
+    <div class="container my-2">
+      <div class="row">
+        <div class="col-sm-10">
+        <div class="input-group mt-2" id="phone" >
+            <input type="search" id="search" class="form-control rounded" placeholder="Search product here..." aria-label="Search" aria-describedby="search-addon"/>
+            <button type="button" id="searchBtn" onclick=check() class="btn btn-outline-primary">search</button>
+          </div>
+        </div>
+        <div class="col-sm-2 my-2">
+          <a href="{% url 'addProduct' %}" class="btn btn btn-secondary float-right">Add Product</a>
+        </div>
+        
+      </div>
+      <div class="row">
+        <div class="col-sm-5 my-2">
+          <label for="category" class="form-label">Sort by Category<span class="text-danger ">*</span></label>
+          <input class="form-control dropdown-toggle"  oninput="update()" id="category" name="category" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+          <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+              {% for category in categories %}
+              <li><a class="dropdown-item dropdown-category" onclick="updateCategoryInput('{{category.id}}','{{category.category}}')">{{category.category}}</a></li>
+              {% endfor %}
+            </ul> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="container mx-2" id="productList">
+        <h2 class="text-center">Product List</h2>
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                {% if product.is_active %}
+              <tr class="rowItems">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{product.name}}</td>
+                {% if product.category %}
+                <td class="category">{{product.category}}</td>
+                {% else %}
+                <td></td>
+                {% endif %}
+                <td>{{product.price}}</td>
+                <td>{{product.qty}}</td>
+                <td><a href={% url 'editProduct' product.id %} class="btn btn-primary">Edit</a></td>
+              </tr>
+              {% endif %}
+              {% endfor %}
+            </tbody>
+          </table>
+    </div>
+</div>
+{% endblock body %}
+{% block js %}
+<script>
+  function check() {
+    let searchValue=document.getElementById('search').value;
+    let els=document.getElementsByClassName('rowItems');
+    console.log(searchValue)
+        for(var i = 0; i < els.length; i++){
+          if (els[i].innerHTML.search(new RegExp(searchValue, "i"))!=-1) {
+            els[i].style.display='';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+  }
+
+  function update() {
+        let categoryInput=document.getElementById('category');
+        let els=document.getElementsByClassName('dropdown-category');
+        for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML.search(new RegExp(categoryInput.value, "i"))!=-1) {
+            els[i].style.display='';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+        console.log(categoryInput.value);
+      }
+
+  function updateCategoryInput(id,category) {
+          let categoryInput=document.getElementById('category');
+          categoryInput.value=category;
+          categoryInput.setAttribute('value',category);
+          let els=document.getElementsByClassName('category');
+          for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML==categoryInput.value) {
+            els[i].parentElement.style.display='';
+          }else{
+            els[i].parentElement.style.display='none';
+          }
+        }
+        }
+</script>
+{% endblock js %}
