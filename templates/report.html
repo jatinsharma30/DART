@@ -154,86 +154,99 @@
             
         </div>
     </div>
-    <div class="row mx-2">
-        <div class="col my-2">
-            <b><span>Enter starting Date</span></b>
-            <input class="mt-1" type="date" name="start" id="startDate" max="2018-12-31" oninput="changeEndDate(this)">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row mx-2">
+                <div class="col my-2">
+                    <b><span>Enter starting Date</span></b>
+                    <input class="mt-1" type="date" name="start" id="startDate" max="2018-12-31" oninput="changeEndDate(this)">
+                </div>
+                <div class="col my-2">
+                    <b><span>Enter ending Date</span></b>
+                    <input class="mt-1" type="date" name="start" id="endDate">
+                </div>
+                <div class="col my-2 pt-1">
+                    <button class="btn btn-secondary" onclick="getLine()">fetch</button>
+                </div>
+            </div>
+            
+            <div class="row my-4 ">
+                
+                <div class="col" id="lineChartContainer">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="col my-2">
-            <b><span>Enter ending Date</span></b>
-            <input class="mt-1" type="date" name="start" id="endDate">
-        </div>
-        <div class="col my-2 pt-1">
-            <button class="btn btn-secondary" onclick="getLine()">fetch</button>
+        <div class="col-sm-6">
+            <div class="row mx-2">
+                <div class="col-5 my-2">
+                    <b><span>Enter starting Month</span></b>
+                    <input class="mt-1" type="month" id="startMonth" name="startMonth" oninput="changeEndMonth()">
+                </div>
+                <div class="col-5 my-2">
+                    <b><span>Enter ending Month</span></b>
+                    <input class="mt-1" type="month" name="endMonth" id="endMonth">
+                </div>
+                <div class="col my-2 pt-1">
+                    <button class="btn btn-secondary" onclick="getBar()">fetch</button>
+                </div>
+            </div>
+            
+            <div class="row my-4 ">
+                <div class="col" id="barChartContainer">
+                    <canvas id="barChart"></canvas>
+                </div>
+                
+            </div>
         </div>
     </div>
-    
-    <div class="row my-4 mx-2">
-        
-        <div class="col-sm-6" id="lineChartContainer">
-            <canvas id="lineChart"></canvas>
-        </div>
-    </div>
-    <div class="row mx-2">
-        <div class="col-5 my-2">
-            <b><span>Enter starting Month</span></b>
-            <input class="mt-1" type="month" id="startMonth" name="startMonth" oninput="changeEndMonth()">
-        </div>
-        <div class="col-5 my-2">
-            <b><span>Enter ending Month</span></b>
-            <input class="mt-1" type="month" name="endMonth" id="endMonth">
-        </div>
-        <div class="col my-2 pt-1">
-            <button class="btn btn-secondary" onclick="getBar()">fetch</button>
-        </div>
-    </div>
-    
-    <div class="row my-4 mx-2">
-        <div class="col-sm-6" id="barChartContainer">
-            <canvas id="barChart"></canvas>
-        </div>
-        <div class="col-sm-6" id="lineChartContainer">
-            <canvas id="lineChart"></canvas>
-        </div>
-    </div>
+       
     <br>
-    <div class="row mx-2">
-        <div class="col my-2">
-            <b class=""><span>Enter starting Date</span></b>
-            <input class="mt-1" type="date" name="start" id="startDateDonutChart" oninput="changeEndDate(this)">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="row mx-2">
+                <div class="col my-2">
+                    <b class=""><span>Enter starting Date</span></b>
+                    <input class="mt-1" type="date" name="start" id="startDateDonutChart" oninput="changeEndDate(this)">
+                </div>
+                <div class="col my-2">
+                    <b class=""><span>Enter ending Date</span></b>
+                    <input class="mt-1" type="date" name="start" id="endDateDonutChart">
+                </div>
+                <div class="col my-2 pt-1">
+                    <button class="btn btn-secondary " onclick="getCategoryDonut()">fetch</button>
+                </div>
+            </div>
+            <div class="row my-4" >
+                <div class="col" id="categoryDonutChart">
+        
+                    <canvas id="categoryChart"></canvas>
+                </div>       
+            </div>
         </div>
-        <div class="col my-2">
-            <b class=""><span>Enter ending Date</span></b>
-            <input class="mt-1" type="date" name="start" id="endDateDonutChart">
-        </div>
-        <div class="col my-2 pt-1">
-            <button class="btn btn-secondary " onclick="getCategoryDonut()">fetch</button>
+        <div class="col-sm-6">
+            <div class="row my-4 mx-2" >
+                {% if categorys %}
+                <div class="row mx-1 my-1">
+                    <select class="form-select w-50" aria-label="Default select example" id="category" onchange='getCategoryProductDonut()'>
+                        {% for category in categorys %}
+                            {% if forloop.first %}
+                            <option selected value={{category.id}} >{{category.category}}</option>
+                            {% else %}
+                            <option value={{category.id}}>{{category.category}}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="col" id="categoryProductDonutChart">
+                    <canvas id="categoryProductChart"></canvas>
+                </div>       
+            </div>
         </div>
     </div>
-    <div class="row my-4 mx-2" >
-        <div class="col-sm-6" id="categoryDonutChart">
-
-            <canvas id="categoryChart"></canvas>
-        </div>       
-    </div>
-    <div class="row my-4 mx-2" >
-        {% if categorys %}
-        <div class="row ">
-            <select class="form-select w-25" aria-label="Default select example" id="category" onchange='getCategoryProductDonut()'>
-                {% for category in categorys %}
-                    {% if forloop.first %}
-                    <option selected value={{category.id}} >{{category.category}}</option>
-                    {% else %}
-                    <option value={{category.id}}>{{category.category}}</option>
-                    {% endif %}
-                {% endfor %}
-            </select>
-        </div>
-        {% endif %}
-        <div class="col-sm-6" id="categoryProductDonutChart">
-            <canvas id="categoryProductChart"></canvas>
-        </div>       
-    </div>
+    
+    
 </div>
 {% endblock body %}
 {% block js %}

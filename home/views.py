@@ -131,11 +131,26 @@ def product(request):
 def orderHistory(request,id=None):
     if id is None:
         orders=Order.objects.filter(user=request.user).order_by('-date_created')
+        if len(orders)==0:
+            messages.error(request,f"No Order History")
     else:
-        if id.isdigit():
-            orders=Order.objects.filter(id=id)
-        else:
-            orders=Order.objects.filter(customer__name__icontains=id)
+        print(id)
+        inputType=id.split('-')[0]
+        if inputType=='phone':
+            orders=Order.objects.filter(user=request.user).filter(customer__phone=id.split('-')[1])
+            phone=id.split('-')[1]
+            if len(orders)==0:
+                messages.error(request,f"No Order with Customer number- {phone}")
+        elif inputType=='date':
+            date=id.split('-')[1:]
+            date='-'.join(date)
+            orders=Order.objects.filter(user=request.user).filter(date_created__date=date)
+            if len(orders)==0:
+                messages.error(request,f"No Order with date - {date}")
+        elif inputType=='OrderId':
+            orders=Order.objects.filter(user=request.user).filter(id=int(id.split('-')[1]))
+            if not orders:
+                messages.error(request,f"No Order with order Id- {int(id.split('-')[1])}")
     param={'orders':orders}
     return render(request,'order-history.html',param)
 

@@ -39,11 +39,28 @@
 {% block body %}
 
 <div class="container">
-  <div class="row w-75 my-4 px-2 py-2 orderDetails" style="border: none;">
-    <div class="input-group">
-      <input type="search" id="searchInput" class="form-control rounded" placeholder="Search by order id or customer name" aria-label="Search" aria-describedby="search-addon"/>
-      <button type="button" id="searchBtn" onclick=changeUrl() class="btn btn-outline-primary">search</button>
+  <div class="row w-75 mt-2  px-2 py-2 orderDetails" style="border: none;">
+    <div class="col-sm-9">
+      <div class="input-group" id="date" style="display: none;">
+        <input type="date" id="dateSearchInput" class="form-control rounded" aria-label="date" aria-describedby="search-date"/>
+        <button type="button" id="dateSearch" onclick=changeUrl(this) class="btn btn-outline-primary">search</button>
+      </div>
+      <div class="input-group" id="OrderId" style="display: ;">
+        <input type="number" id="orderIdSearchInput" class="form-control rounded" placeholder="Enter Order-ID" aria-label="orderId" aria-describedby="search-orderId"/>
+        <button type="button" id="orderIdSearch" onclick=changeUrl(this) class="btn btn-outline-primary">search</button>
+      </div>
+      <div class="input-group" id="phone" style="display: none;">
+        <input type="phone" id="phoneSearchInput" class="form-control rounded" placeholder="Enter Customer Number" aria-label="Search" aria-describedby="search-addon"/>
+        <button type="button" id="phoneSearch" onclick=changeUrl(this) class="btn btn-outline-primary">search</button>
+      </div>
     </div>
+    <div class="col-sm">
+      <select class="form-select " aria-label="Default select example" id="category" onchange='showSearch(this)'>
+        <option selected value="OrderId" >Search By Order ID</option>
+        <option value="phone">Search By Customer mobile no.</option>
+        <option value="date">Search By Date</option>
+    </select>
+    </div> 
   </div>
     {% for order in orders %}
     <div class="row w-75 orderDetails my-4 px-2 py-2">
@@ -97,15 +114,35 @@
 {% endblock body %}
 {% block js %}
 <script>
-  function changeUrl() {
-    let searchInput=document.getElementById('searchInput').value;
+  function changeUrl(element) {
+    let searchInput=document.getElementById(`${element.id}Input`);
+    console.log(searchInput)
     var url="{% url 'order-history'  %}";
-    if (searchInput!=""){
-      document.location.href = url + "/" + searchInput;
+    if (searchInput.value!=""){
+      document.location.href = url + "/" + searchInput.parentElement.id + '-' + searchInput.value;
     }else{
       document.location.href = url; 
     }
-
   }
+
+  var date=document.getElementById('date');
+  var phone=document.getElementById('phone');
+  var OrderId=document.getElementById('OrderId');
+  function showSearch(element) {
+    if (element.value=='phone') {
+      phone.style.display='';
+      date.style.display='none';
+      OrderId.style.display='none';
+    }else if(element.value=='OrderId'){
+      phone.style.display='none';
+      date.style.display='none';
+      OrderId.style.display='';
+    }else if(element.value=='date'){
+      phone.style.display='none';
+      date.style.display='';
+      OrderId.style.display='none';
+    }
+  }
+
 </script>
 {% endblock js %}
