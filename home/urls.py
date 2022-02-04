@@ -17,6 +17,8 @@ urlpatterns = [
     path('getCategorySale', views.getCategorySale,name='getCategorySale'),
     path('getOrderSale', views.getOrderSale,name='getOrderSale'),
     path('getOrderSaleByMonth', views.getOrderSaleByMonth,name='getOrderSaleByMonth'),
+    path('expense', views.expense,name='expense'),
+    path('expense/add', views.addExpense,name='addExpense'),
     # path('customerExist', views.customerExist,name='customerExist'),
     path('handleLogout', views.handleLogout,name='handleLogout'),
 ]

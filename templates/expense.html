@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block expenseActive %}active{% endblock expenseActive %}
+{% block css %}
+<style>
+  @media only screen and (min-width: 768px) {
+            /* tablets and desktop */
+        }
+
+        @media only screen and (max-width: 767px) {
+            /* phones */
+            body{
+              font-size: 1rem;
+            }
+        }
+
+        @media only screen and (max-width: 767px) and (orientation: portrait) {
+            /* portrait phones */
+            
+        }
+</style>
+{% endblock css %}
+
+{% block body %}
+<div class="container">
+    <div class="container my-2">
+      <div class="row">
+        <div class="col-sm-10">
+        <div class="input-group mt-2" >
+            <input type="search" id="search" class="form-control rounded" placeholder="Search Item here..." aria-label="Search" aria-describedby="search-addon"/>
+            <button type="button" id="searchBtn" onclick=check() class="btn btn-outline-primary">search</button>
+          </div>
+        </div>
+        <div class="col-sm-2 my-2">
+          <a href="{% url 'addExpense' %}" class="btn btn btn-secondary float-right">Add Item</a>
+        </div>
+        
+      </div>
+      <div class="row">
+        <div class="col-sm-5 my-2">
+          <label for="type" class="form-label">Sort by Item type<span class="text-danger ">*</span></label>
+          <input class="form-control dropdown-toggle"  oninput="update()" id="type" name="type" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+          <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+            {% for type in expenseTypes %}
+            <li><a class="dropdown-item dropdown-type" onclick="updateTypeInput('{{type.id}}','{{type.name}}')">{{type.name}}</a></li>
+            {% endfor %}
+            </ul> 
+        </div>
+        <div class="col-sm-5 my-2">
+          <label for="date" class="form-label">Sort by add Date<span class="text-danger ">*</span></label>
+          <input type="date" class="form-control" oninput="searchByDate()" id="date" name="date" autocomplete="off">
+        </div>
+      </div>
+    </div>
+    
+    <div class="container mx-2" id="productList">
+        <h2 class="text-center">Item List</h2>
+        <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col"></th>
+                <th scope="col">Item Name</th>
+                <th scope="col">Type</th>
+                <th scope="col">price</th>
+                <th scope="col">Date Added</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr class="rowItems">
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{item.name}}</td>
+                    <td class="itemType">{{item.type.name}}</td>
+                    <td>{{item.price}}</td>
+                    <td class="itemDate">{{item.date_created}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+    </div>
+</div>
+{% endblock body %}
+{% block js %}
+<script>
+  function check() {
+    let searchValue=document.getElementById('search').value;
+    let els=document.getElementsByClassName('rowItems');
+    console.log(searchValue)
+        for(var i = 0; i < els.length; i++){
+          if (els[i].innerHTML.search(new RegExp(searchValue, "i"))!=-1) {
+            els[i].style.display='';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+  }
+
+  function update() {
+        let typeInput=document.getElementById('type');
+        let els=document.getElementsByClassName('dropdown-type');
+        for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML.search(new RegExp(typeInput.value, "i"))!=-1) {
+            els[i].style.display='';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+        console.log(typeInput.value);
+      }
+
+  function updateTypeInput(id,type) {
+          let typeInput=document.getElementById('type');
+          typeInput.value=type;
+          typeInput.setAttribute('value',type);
+          let els=document.getElementsByClassName('itemType');
+          for(var i = 0; i < els.length; i++){
+            console.log(els[i]);
+            if (els[i].innerHTML==typeInput.value) {
+                els[i].parentElement.style.display='';
+            }else{
+                els[i].parentElement.style.display='none';
+            }
+          }
+        }
+    
+    function searchByDate() {
+        let date=document.getElementById('date');
+        // console.log(date.value);
+        let dateEntered = new Date(date.value);
+        // console.log(dateEntered);
+        let search=dateEntered.toLocaleString('default', { month: 'short' })+'. '+dateEntered.getDate()+', '+dateEntered.getFullYear();
+        // console.log(search)
+        let els=document.getElementsByClassName('itemDate');
+          for(var i = 0; i < els.length; i++){
+            // console.log(els[i].innerHTML.slice(0,12));
+            if (els[i].innerHTML.slice(0,12)==search) {
+                els[i].parentElement.style.display='';
+            }else{
+                els[i].parentElement.style.display='none';
+            }
+          }
+    }
+</script>
+{% endblock js %}

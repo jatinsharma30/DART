@@ -1,3 +1,4 @@
+from pickle import TRUE
 from unicodedata import category
 from django.db import models
 from datetime import date,timedelta
@@ -7,6 +8,22 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 
 # Create your models here.
+class ExpenseType(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    name=models.CharField(max_length=200)
+
+class Expense(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    name=models.CharField(max_length=150)
+    type=models.ForeignKey(ExpenseType,on_delete=models.SET_NULL,null=True)
+    description=models.TextField(null=True,blank=True)
+    price=models.FloatField()
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} -{self.type.name}"
+
+
 class Customer(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     name = models.CharField(max_length=200, null=True)
@@ -164,41 +181,46 @@ class OrderManager(models.Manager):
     def getPaymentMethodsSale(self,user):
         count=self.get_queryset().filter(user=user).count()
         qsCash=self.get_queryset().filter(user=user).filter(payment_method='Cash')
+        qsCash2=self.get_queryset().filter(user=user).filter(payment_method2='Cash')
         try:
             cashCount=(qsCash.count()/count)*100
         except ZeroDivisionError:
             cashCount=0
         qsAmazonPay=self.get_queryset().filter(user=user).filter(payment_method='Amazon Pay')
+        qsAmazonPay2=self.get_queryset().filter(user=user).filter(payment_method2='Amazon Pay')
         try:
             amazonCount=(qsAmazonPay.count()/count)*100
         except ZeroDivisionError:
             amazonCount=0
         qsGooglePay=self.get_queryset().filter(user=user).filter(payment_method='Google Pay')
+        qsGooglePay2=self.get_queryset().filter(user=user).filter(payment_method2='Google Pay')
         try:
             googleCount=(qsGooglePay.count()/count)*100
         except ZeroDivisionError:
             googleCount=0
         qsPaytm=self.get_queryset().filter(user=user).filter(payment_method='Paytm')
+        qsPaytm2=self.get_queryset().filter(user=user).filter(payment_method2='Paytm')
         try:
             paytmCount=(qsPaytm.count()/count)*100
         except ZeroDivisionError:
             paytmCount=0
         qsCard=self.get_queryset().filter(user=user).filter(payment_method='Card')
+        qsCard2=self.get_queryset().filter(user=user).filter(payment_method2='Card')
         try:
             cardCount=(qsCard.count()/count)*100
         except ZeroDivisionError:
             cardCount=0
         res={
             'cashCount':cashCount,
-            'cashTotal':self.getTotalSaleByQuery(qsCash),
+            'cashTotal':self.getTotalSaleByQuery(qsCash)+self.getTotalSaleByQuery(qsCash2),
             'amazonCount':amazonCount,
-            'amazonTotal':self.getTotalSaleByQuery(qsAmazonPay),
+            'amazonTotal':self.getTotalSaleByQuery(qsAmazonPay)+self.getTotalSaleByQuery(qsAmazonPay2),
             'googleCount':googleCount,
-            'googleTotal':self.getTotalSaleByQuery(qsGooglePay),
+            'googleTotal':self.getTotalSaleByQuery(qsGooglePay)+self.getTotalSaleByQuery(qsGooglePay2),
             'cardCount':cardCount,
-            'cardTotal':self.getTotalSaleByQuery(qsCard),
+            'cardTotal':self.getTotalSaleByQuery(qsCard)+self.getTotalSaleByQuery(qsCard2),
             'paytmCount':paytmCount,
-            'paytmTotal':self.getTotalSaleByQuery(qsPaytm)
+            'paytmTotal':self.getTotalSaleByQuery(qsPaytm)+self.getTotalSaleByQuery(qsPaytm2)
         }
         return res
               
@@ -224,7 +246,10 @@ class Order(models.Model):
         ('Card','Card')
     )
     payment_method=models.CharField(choices=paymentChoices,default='Cash',max_length=15)
-
+    is_split=models.BooleanField(default=False,null=True,blank=True)
+    payment_method2=models.CharField(choices=paymentChoices,null=True,blank=True,max_length=15)
+    payment1=models.FloatField(default=0,null=True,blank=True)
+    payment2=models.FloatField(default=0,null=True,blank=True)
     objects=OrderManager()
 
     def __str__(self):
@@ -235,6 +260,10 @@ class Order(models.Model):
         for orderProduct in self.orderProducts.all():
             totalAmount+=orderProduct.TotalCostProduct()
         return totalAmount
+
+    def finalAmount(self):  #including TAX
+        amount=(0.05)*self.total()
+        return amount
 
 class OrderProduct(models.Model):
     order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='orderProducts')

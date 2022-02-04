@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block expenseActive %}active{% endblock expenseActive %}
+{% block css %}
+<style>
+  @media only screen and (min-width: 768px) {
+            /* tablets and desktop */
+        }
+
+        @media only screen and (max-width: 767px) {
+            /* phones */
+            body{
+              font-size: 1rem;
+            }
+        }
+
+        @media only screen and (max-width: 767px) and (orientation: portrait) {
+            /* portrait phones */
+            
+        }
+</style>
+{% endblock css %}
+
+{% block body %}
+<div class="container">
+    <div class="container w-75 my-4">
+        <h1>Add Item</h1>
+    <form action={% url 'addExpense' %} method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="itemName" class="form-label">Item Name<span class="text-danger ">*</span></label>
+          <input type="text" name="itemName" class="form-control"  id="itemName" aria-describedby="itemName" required>
+        </div>
+        <div class="mb-3">
+          <label for="price" class="form-label">Price<span class="text-danger ">*</span></label>
+          <input type="number" name="price" class="form-control" id="price" required>
+        </div>
+        <div class="mb-3">
+            <label for="floatingTextarea">description</label>
+            <textarea class="form-control" placeholder="Add description" id="description" name="description"></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="type" class="form-label">Item type<span class="text-danger ">*</span></label>       
+          <input class="form-control dropdown-toggle" oninput="update()" id="type" name="type" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+          <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+              {% for type in expenseTypes %}
+              <li><a class="dropdown-item" onclick="updateTypeInput('{{type.id}}','{{type.name}}')">{{type.name}}</a></li>
+              {% endfor %}
+            </ul> 
+      </div>      
+        <button type="submit" class="btn btn-primary">Add</button>
+        <a href='{% url 'expense' %}' class="btn btn-danger">Cancel</a>
+      </form>
+    </div>
+</div>
+{% endblock body %}
+{% block js %}
+<script>
+    if ( window.history.replaceState ) {
+      window.history.replaceState( null, null, window.location.href );
+    }
+
+    // search product
+    function update() {
+        let typeInput=document.getElementById('type');
+        let els=document.getElementsByClassName('dropdown-item');
+        for(var i = 0; i < els.length; i++){
+          console.log(els[i])
+          if (els[i].innerHTML.search(new RegExp(typeInput.value, "i"))!=-1) {
+            els[i].style.display='';
+          }else{
+            els[i].style.display='none';
+          }
+        }
+        console.log(typeInput.value);
+      }
+
+        function updateTypeInput(id,type) {
+          let typeInput=document.getElementById('type');
+          typeInput.value=type;
+        }
+
+    </script>
+{% endblock js %}

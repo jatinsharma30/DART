@@ -5,13 +5,14 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login,logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from .models import Customer, OrderProduct,Product,Order,ProductCategory
+from .models import Customer, OrderProduct,Product,Order,ProductCategory,Expense,ExpenseType
 import json
 from django.http import JsonResponse
 from datetime import date
 from datetime import datetime
 from django.forms.models import model_to_dict
-from django.core.paginator import Paginator
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 # Create your views here.
 @login_required
@@ -25,6 +26,7 @@ def report(request):
     thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today(),request.user)
     paymentMethods=Order.objects.getPaymentMethodsSale(request.user)
     category=ProductCategory.objects.filter(user=request.user)
+    expenseTotal=Expense.objects.filter(user=request.user).filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('price'), 0.0))
     param={
         'todaySale':todaySale,
         'totalSale':totalSale,
@@ -34,7 +36,8 @@ def report(request):
         'dineInSale':dineInSale,
         'takeawaySale':takeawaySale,
         'paymentMethods':paymentMethods,
-        'categorys':category
+        'categorys':category,
+        'expenseTotal':expenseTotal
         }
     return render(request,'report.html',param)
 
@@ -88,18 +91,29 @@ def order(request):
         saleOptions=request.POST['saleOptions']
         # print(saleOptions)
         paymentOptions=request.POST['paymentOptions']
+        email=request.POST.get('email','')
         # print(paymentOptions)
         order_state=request.POST.get('order_state','Dine in')
+        split=request.POST.get('split','')
         # print(saleOptions,order_state,paymentOptions)
-        email=request.POST.get('email','')
+        
         if customerId!="":
             customer=Customer.objects.filter(user=request.user).filter(id=customerId).update(phone=phone,name=customerName,email=email)
             customer=Customer.objects.filter(user=request.user).filter(id=customerId).first()
         else:
             customer=Customer.objects.create(name=customerName,phone=phone,email=email,user=request.user)
             customer.save()
-        order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user)
-        order.save()
+        print(split)
+        if split!='':
+            amount1=request.POST['amount1']
+            amount2=request.POST['amount2']
+            paymentOptions2=request.POST['paymentOptions2']
+            print(amount1,amount2,paymentOptions2)
+            order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user,paument1=amount1,paument2=amount2,is_split=True,payment_method2=paymentOptions2)
+            order.save()
+        else: 
+            order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user)
+            order.save()
 
         items=request.POST['items']
         items=json.loads(items)
@@ -258,6 +272,32 @@ def getOrderSaleByMonth(request):
 #             print('t')
 #             return JsonResponse(model_to_dict(responseData))
 #         return JsonResponse({})
+
+@login_required
+def addExpense(request):
+    if request.method=='POST':
+        itemName=request.POST['itemName']
+        price=request.POST['price']
+        description=request.POST['description']
+        type=request.POST['type']
+        try:
+            expenseType=ExpenseType.objects.get(name=type,user=request.user)
+        except Exception as e:
+            expenseType=ExpenseType.objects.create(user=request.user,name=type)
+            expenseType.save()
+        newExpense=Expense.objects.create(user=request.user,name=itemName,price=price,description=description,type=expenseType)
+        newExpense.save()
+        messages.success(request,"Item added sucessfully!")
+    expenseTypes=ExpenseType.objects.filter(user=request.user)
+    param={'expenseTypes':expenseTypes}
+    return render(request,'addExpense.html',param)
+
+@login_required
+def expense(request):
+    items=Expense.objects.filter(user=request.user)
+    expenseTypes=ExpenseType.objects.filter(user=request.user)
+    param={'items':items,'expenseTypes':expenseTypes}
+    return render(request,'expense.html',param)
 
 @login_required
 def handleLogout(request):
