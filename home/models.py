@@ -259,6 +259,7 @@ class Order(models.Model):
         totalAmount=0
         for orderProduct in self.orderProducts.all():
             totalAmount+=orderProduct.TotalCostProduct()
+        totalAmount=(0.05)*totalAmount+totalAmount
         return totalAmount
 
     def finalAmount(self):  #including TAX
