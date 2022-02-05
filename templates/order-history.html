@@ -71,7 +71,7 @@
         </div>
         <div class="row">
             <div class="col-sm-4">
-              <b>total: </b><span>{{order.total}}</span>
+              <b>total: &#x20B9 </b><span>{{order.total}}</span>
             </div>
             <div class="col-sm-4">
               <b>Order Id: </b><span>{{order.id}}</span>
@@ -90,11 +90,11 @@
         {% if order.is_split %}
         <div class="row">
           <div class="col-sm-3">
-            <b>Amount 1: </b><span>{{order.payment1}}</span>
+            <b>Amount 1: &#x20B9 </b><span>{{order.payment1}}</span>
           </div>
           <div class="col-sm-3"><b>{{order.payment_method}}</b></div>
           <div class="col-sm-3">
-            <b>Amount 2: </b><span>{{order.payment2}}</span>
+            <b>Amount 2: &#x20B9 </b><span>{{order.payment2}}</span>
           </div>   
           <div class="col-sm-3"><b>{{order.payment_method2}}</b></div>
         </div>
@@ -114,7 +114,7 @@
                   <tr>
                     <th scope="row">{{forloop.counter}}</th>
                     <td>{{orderProduct.product.name}}</td>
-                    <td>{{orderProduct.product.price}}</td>
+                    <td>&#x20B9 {{orderProduct.product.price}}</td>
                     <td>{{orderProduct.quantity}}</td>
                   </tr>
                   {% endfor %}

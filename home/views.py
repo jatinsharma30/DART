@@ -109,7 +109,7 @@ def order(request):
             amount2=request.POST['amount2']
             paymentOptions2=request.POST['paymentOptions2']
             print(amount1,amount2,paymentOptions2)
-            order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user,paument1=amount1,paument2=amount2,is_split=True,payment_method2=paymentOptions2)
+            order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user,payment1=amount1,payment2=amount2,is_split=True,payment_method2=paymentOptions2)
             order.save()
         else: 
             order=Order.objects.create(customer=customer,saleType=saleOptions,orderState=order_state,payment_method=paymentOptions,user=request.user)

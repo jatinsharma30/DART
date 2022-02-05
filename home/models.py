@@ -250,19 +250,20 @@ class Order(models.Model):
     payment_method2=models.CharField(choices=paymentChoices,null=True,blank=True,max_length=15)
     payment1=models.FloatField(default=0,null=True,blank=True)
     payment2=models.FloatField(default=0,null=True,blank=True)
+    # total = models.FloatField(null=True)
+    # price = models.FloatField(null=True)
     objects=OrderManager()
 
     def __str__(self):
         return f"{self.id}"
 
-    def total(self):
+    def total(self):    #including TAX
         totalAmount=0
         for orderProduct in self.orderProducts.all():
             totalAmount+=orderProduct.TotalCostProduct()
-        totalAmount=(0.05)*totalAmount+totalAmount
         return totalAmount
 
-    def finalAmount(self):  #including TAX
+    def taxAmount(self):  # TAX
         amount=(0.05)*self.total()
         return amount
 
