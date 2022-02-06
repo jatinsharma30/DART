@@ -97,7 +97,7 @@
           <li><a class="nav-link scrollto {% block homeActive %}{% endblock homeActive %}" href="{% url 'home' %}">Home</a></li>
           <li><a class="nav-link scrollto {% block reportActive %}{% endblock reportActive %}" href="{% url 'report' %}">Report</a></li>
           <li><a class="nav-link scrollto {% block productActive %}{% endblock productActive %}" href="{% url 'product' %}">Menu</a></li>
-          <li><a class="nav-link scrollto o {% block orderActive %}{% endblock orderActive %}" href={% url 'order' %}>Order</a></li>
+          <li><a class="nav-link scrollto o {% block orderActive %}{% endblock orderActive %}" href={% url 'order' %} {% block orderTarget %}{% endblock orderTarget %}>Order</a></li>
           <li><a class="nav-link scrollto o {% block expenseActive %}{% endblock expenseActive %}" href={% url 'expense' %}>Expense</a></li>
           <li><a class="nav-link scrollto {% block historyActive %}{% endblock historyActive %}" href="{% url 'order-history' %}">Order History</a></li>
           <!-- <li><a class="nav-link scrollto" href="#contact">Contact</a></li> -->

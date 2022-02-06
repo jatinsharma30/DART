@@ -14,6 +14,11 @@ from django.forms.models import model_to_dict
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
 
+#for bill print
+from django.http import HttpResponse
+from django.views.generic import View
+from main.utils import render_to_pdf
+
 # Create your views here.
 @login_required
 def report(request):
@@ -83,6 +88,28 @@ def handleLogin(request):
 #     return render(request,'signup.html')
 
 @login_required
+def GeneratePdf(request,id):
+    try:
+        order=Order.objects.get(id=id,user=request.user)
+    except Exception as e:
+        order=None
+        return HttpResponse("Not found")
+    # template = get_template('invoice.html')
+    context = {'order':order}
+    # html = template.render(context)
+    pdf = render_to_pdf('invoice/invoice.html', context)
+    if pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        filename = "Invoice_%s.pdf" %(order.id)
+        content = "inline; filename='%s'" %(filename)
+        download = request.GET.get("download")
+        if download:
+            content = "attachment; filename='%s'" %(filename)
+        response['Content-Disposition'] = content
+        return response
+    return HttpResponse("Not found")
+
+@login_required
 def order(request):
     if request.method=='POST':
         customerId=request.POST['customerId']
@@ -121,13 +148,27 @@ def order(request):
             product=Product.objects.get(id=int(item))
             orderProduct=OrderProduct.objects.create(order=order,product=product,quantity=items[item])
             orderProduct.save()
-        # messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>",extra_tags='safe')
-        messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/OrderId-{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>")
+        messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/OrderId-{order.id}' class='btn btn-link ml-2' style='text-decoration: none;'>view detals</a> <a href='order/invoice/{order.id}' target='_blank'  class='btn btn-primary mr-auto'>print</a>")
+        # return GeneratePdf(request,order.id)
+        # messages.success(request,f"Order Placed (order id- {order.id}) <a href='order-history/OrderId-{order.id}' class='btn btn-link' style='text-decoration: none;'>view detals</a>")
             # print(int(item),items[item])
     products=Product.objects.filter(user=request.user)
     customers=Customer.objects.filter(user=request.user)
     param={'products':products,'customers':customers}
     return render(request,'order.html',param)
+
+@login_required
+def cancelOrder(request,id):
+    try:
+        order=Order.objects.get(id=id,user=request.user)
+        if order.cancel():
+            order.delete()
+            messages.success(request,f"Order Canceled sucessfully" )
+            return redirect('order-history')
+        else:
+            return HttpResponse("Not found")
+    except Exception as e:
+        return HttpResponse("Not found")
 
 @login_required
 def addProduct(request):

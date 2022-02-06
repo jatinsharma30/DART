@@ -4,6 +4,7 @@ from django.db import models
 from datetime import date,timedelta
 from django.http import JsonResponse, request
 import datetime
+from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import User
 
@@ -266,6 +267,14 @@ class Order(models.Model):
     def taxAmount(self):  # TAX
         amount=(0.05)*self.total()
         return amount
+
+    def itemAmount(self):
+        return self.total()-self.taxAmount()
+
+    def cancel(self):
+        if self.date_created>timezone.now() - datetime.timedelta(minutes=30):
+            return True
+        return False
 
 class OrderProduct(models.Model):
     order=models.ForeignKey(Order,on_delete=models.CASCADE,related_name='orderProducts')

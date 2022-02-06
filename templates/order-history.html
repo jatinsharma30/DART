@@ -76,9 +76,18 @@
             <div class="col-sm-4">
               <b>Order Id: </b><span>{{order.id}}</span>
             </div>
-            <div class="col-sm">
+            <div class="col-sm-4">
               <b>Time: </b><span>{{order.date_created}}</span>
             </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+              <b>Item total: &#x20B9 </b><span>{{order.itemAmount}}</span>
+            </div>
+            <div class="col-sm-4">
+              <b>tax: &#x20B9 </b><span>{{order.taxAmount}}</span>
+            </div>
+            
         </div>
         <div class="row">
           <div class="col-sm-4"><b>{{order.saleType}}</b></div>
@@ -119,8 +128,13 @@
                   </tr>
                   {% endfor %}
                 </tbody>
-              </table>
-        
+              </table>       
+        </div>
+        <div class="row">
+          {% if order.cancel %}
+          <a href={% url 'order-cancel' order.id %} class="btn btn-danger mx-2" style="width: 5vw;">Cancel</a>
+          {% endif %}
+          <a href={% url 'order-invoice' order.id %} class="btn btn-outline-primary mx-2" style="width: 5vw;">print</a>
         </div>
     </div>
     {% endfor %}

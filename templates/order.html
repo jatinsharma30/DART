@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block orderActive %}active{% endblock orderActive %}
+{% block orderTarget %} target='_blank'{% endblock orderTarget %}
 {% block css %}
 <style>
   @media only screen and (min-width: 768px) {
@@ -171,7 +172,7 @@
         </div>
     </div>
     <hr>
-    <button type="submit" id="orderBtn" disabled class="btn btn-primary mr-auto">order</button>
+    <button type="submit" id="orderBtn" disabled class="btn btn-primary mr-auto">Place Order</button>
   </form>
 </div>
 {% endblock body %}
@@ -256,8 +257,8 @@
           orderDetails.innerHTML+=`<tr class="table-secondary" id="item-${id}">
                                   <td>${product} ${category}</td>
                                   <td><button id="btn" type="button" class="btn-sm btn-primary py-0" onclick="subtract(${id},${price})">-</button><span id="qty-${id}"> 1 </span><button id="btn" type="button" class="btn-sm btn-primary py-0" onclick="add(${id},${price})">+</button></td>
-                                  <td>${price}</td>
-                                  <td id="total-${id}">${price}</td>
+                                  <td>&#x20B9 ${price}</td>
+                                  <td>&#x20B9 <span id="total-${id}">${price}</span></td>
                                   <td><button id="btnCancel" type="button" class="btn btn-danger" onclick="removeItem(${id},${price})">Cancel</button></td>
                                 </tr>`
          itemCount+=1;
