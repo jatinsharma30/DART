@@ -19,7 +19,7 @@ class Expense(models.Model):
     type=models.ForeignKey(ExpenseType,on_delete=models.SET_NULL,null=True)
     description=models.TextField(null=True,blank=True)
     price=models.FloatField()
-    date_created = models.DateTimeField(null=True)
+    date_created = models.DateField()
 
     def __str__(self):
         return f"{self.name} -{self.type.name}"

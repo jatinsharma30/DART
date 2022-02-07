@@ -33,8 +33,8 @@ def report(request):
     thisMonthSale=Order.objects.getOrderAmountByDate(date.today().replace(day=1),date.today(),request.user)
     paymentMethods=Order.objects.getPaymentMethodsSale(request.user)
     category=ProductCategory.objects.filter(user=request.user)
-    expenseTotal=Expense.objects.filter(user=request.user).filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('price'), 0.0))
-    expenseMonth=Expense.objects.filter(user=request.user).filter(date_created__date__gte=date.today().replace(day=1)).aggregate(total=Coalesce(Sum('price'), 0.0))
+    expenseTotal=Expense.objects.filter(user=request.user).filter(date_created=date.today()).aggregate(total=Coalesce(Sum('price'), 0.0))
+    expenseMonth=Expense.objects.filter(user=request.user).filter(date_created__gte=date.today().replace(day=1)).aggregate(total=Coalesce(Sum('price'), 0.0))
     param={
         'todaySale':todaySale,
         'totalSale':totalSale,
@@ -342,9 +342,9 @@ def addExpense(request):
         try:
             expenseType=ExpenseType.objects.get(id=type,user=request.user)
         except Exception as e:
-            expenseType=ExpenseType.objects.create(user=request.user,name=type,date_created=date)
+            expenseType=ExpenseType.objects.create(user=request.user,name=type)
             expenseType.save()
-        newExpense=Expense.objects.create(user=request.user,name=itemName,price=price,description=description,type=expenseType)
+        newExpense=Expense.objects.create(user=request.user,name=itemName,price=price,description=description,type=expenseType,date_created=date)
         newExpense.save()
         messages.success(request,"Item added sucessfully!")
     return redirect('expense')
@@ -352,7 +352,7 @@ def addExpense(request):
 @login_required
 def expense(request):
     expenseType=ExpenseType.objects.filter(user=request.user)
-    items=Expense.objects.filter(user=request.user).order_by('-date_created')
+    items=Expense.objects.filter(user=request.user)
     param={'expenseTypes':expenseType,'items':items}
     return render(request,'expense.html',param)
 
