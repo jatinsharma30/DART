@@ -22,8 +22,54 @@
 
 {% block body %}
 <div class="container">
+  <div class="container w-75 my-4">
+      <h1>Add Item</h1>
+  <form action={% url 'addExpense' %} method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="itemName" class="form-label">Item Name<span class="text-danger ">*</span></label>
+        <input type="text" name="itemName" class="form-control"  id="itemName" aria-describedby="itemName" required>
+      </div>
+      <div class="mb-3">
+        <label for="price" class="form-label">Price<span class="text-danger ">*</span></label>
+        <input type="number" name="price" class="form-control" id="price" required>
+      </div>
+      <div class="mb-3">
+          <label for="floatingTextarea">description</label>
+          <textarea class="form-control" placeholder="Add description" id="description" name="description"></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="type" class="form-label">Item type<span class="text-danger ">*</span></label>       
+        {% comment %} <input class="form-control dropdown-toggle" oninput="update()" id="type" name="type" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
+        <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
+            {% for type in expenseTypes %}
+            <li><a class="dropdown-item" onclick="updateTypeInput('{{type.id}}','{{type.name}}')">{{type.name}}</a></li>
+            {% endfor %}
+          </ul>  {% endcomment %}
+          <select class="form-select " aria-label="Default select example" id="type" name="type">
+            {% for type in expenseTypes %}
+            {% if forloop.first %}
+            <option selected value={{type.id}} >{{type.name}}</option>
+            {% else %}
+            <option value={{type.id}}>{{type.name}}</option>
+            {% endif %}
+            {% endfor %}
+          <!-- <input type="hidden" name="type" value=""> -->
+        </select>
+    </div>   
+    <div class="mb-3">
+      <div class="col-sm-5 my-2">
+        <label for="date" class="form-label">Date<span class="text-danger ">*</span></label>
+        <input type="date" class="form-control date"  id="date" name="date" autocomplete="off">
+      </div>
+    </div>   
+      <button type="submit" class="btn btn-primary">Add</button>
+    </form>
+  </div>
+</div>
+<div class="container">
     <div class="container my-2">
-      <div class="row">
+      <!-- <div class="row">
         <div class="col-sm-10">
         <div class="input-group mt-2" >
             <input type="search" id="search" class="form-control rounded" placeholder="Search Item here..." aria-label="Search" aria-describedby="search-addon"/>
@@ -34,9 +80,11 @@
           <a href="{% url 'addExpense' %}" class="btn btn btn-secondary float-right">Add Item</a>
         </div>
         
-      </div>
-      <div class="row">
-        <div class="col-sm-5 my-2">
+      </div> -->
+      <form action="{% url 'expense' %}" method="post" name="getList">
+        {% csrf_token %}
+      <div class="row mx-5">
+        <!-- <div class="col-sm-5 my-2">
           <label for="type" class="form-label">Sort by Item type<span class="text-danger ">*</span></label>
           <input class="form-control dropdown-toggle"  oninput="update()" id="type" name="type" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
           <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
@@ -44,12 +92,20 @@
             <li><a class="dropdown-item dropdown-type" onclick="updateTypeInput('{{type.id}}','{{type.name}}')">{{type.name}}</a></li>
             {% endfor %}
             </ul> 
+        </div> -->
+        <div class="col-sm-5 my-2">
+          <label for="start" class="form-label">start Date<span class="text-danger ">*</span></label>
+          <input type="date" class="form-control date" id="start" name="start" autocomplete="off">
         </div>
         <div class="col-sm-5 my-2">
-          <label for="date" class="form-label">Sort by add Date<span class="text-danger ">*</span></label>
-          <input type="date" class="form-control" oninput="searchByDate()" id="date" name="date" autocomplete="off">
+          <label for="end" class="form-label">end Date<span class="text-danger ">*</span></label>
+          <input type="date" class="form-control date" id="end" name="end" autocomplete="off">
+        </div>
+        <div class="col-sm-2 my-4 pt-3">
+          <button type="button" onclick="searchByDate()" class="btn btn-secondary">fetch</button>
         </div>
       </div>
+    </form>
     </div>
     
     <div class="container mx-2" id="productList">
@@ -81,64 +137,127 @@
 {% endblock body %}
 {% block js %}
 <script>
-  function check() {
-    let searchValue=document.getElementById('search').value;
-    let els=document.getElementsByClassName('rowItems');
-    console.log(searchValue)
-        for(var i = 0; i < els.length; i++){
-          if (els[i].innerHTML.search(new RegExp(searchValue, "i"))!=-1) {
-            els[i].style.display='';
-          }else{
-            els[i].style.display='none';
-          }
-        }
-  }
+  // function check() {
+  //   let searchValue=document.getElementById('search').value;
+  //   let els=document.getElementsByClassName('rowItems');
+  //   console.log(searchValue)
+  //       for(var i = 0; i < els.length; i++){
+  //         if (els[i].innerHTML.search(new RegExp(searchValue, "i"))!=-1) {
+  //           els[i].style.display='';
+  //         }else{
+  //           els[i].style.display='none';
+  //         }
+  //       }
+  // }
 
-  function update() {
-        let typeInput=document.getElementById('type');
-        let els=document.getElementsByClassName('dropdown-type');
-        for(var i = 0; i < els.length; i++){
-          console.log(els[i])
-          if (els[i].innerHTML.search(new RegExp(typeInput.value, "i"))!=-1) {
-            els[i].style.display='';
-          }else{
-            els[i].style.display='none';
-          }
-        }
-        console.log(typeInput.value);
-      }
+  // function update() {
+  //       let typeInput=document.getElementById('type');
+  //       let els=document.getElementsByClassName('dropdown-type');
+  //       for(var i = 0; i < els.length; i++){
+  //         console.log(els[i])
+  //         if (els[i].innerHTML.search(new RegExp(typeInput.value, "i"))!=-1) {
+  //           els[i].style.display='';
+  //         }else{
+  //           els[i].style.display='none';
+  //         }
+  //       }
+  //       console.log(typeInput.value);
+  //     }
 
-  function updateTypeInput(id,type) {
-          let typeInput=document.getElementById('type');
-          typeInput.value=type;
-          typeInput.setAttribute('value',type);
-          let els=document.getElementsByClassName('itemType');
-          for(var i = 0; i < els.length; i++){
-            console.log(els[i]);
-            if (els[i].innerHTML==typeInput.value) {
-                els[i].parentElement.style.display='';
-            }else{
-                els[i].parentElement.style.display='none';
-            }
-          }
-        }
+  // function updateTypeInput(id,type) {
+  //         let typeInput=document.getElementById('type');
+  //         typeInput.value=type;
+  //         typeInput.setAttribute('value',type);
+  //         let els=document.getElementsByClassName('itemType');
+  //         for(var i = 0; i < els.length; i++){
+  //           console.log(els[i]);
+  //           if (els[i].innerHTML==typeInput.value) {
+  //               els[i].parentElement.style.display='';
+  //           }else{
+  //               els[i].parentElement.style.display='none';
+  //           }
+  //         }
+  //       }
     
     function searchByDate() {
-        let date=document.getElementById('date');
+        let start=document.getElementById('start');
+        let end=document.getElementById('end');
         // console.log(date.value);
-        let dateEntered = new Date(date.value);
+        let startDateEntered = new Date(start.value);
+        let endDateEntered = new Date(end.value);
         // console.log(dateEntered);
-        let search=dateEntered.toLocaleString('default', { month: 'short' })+'. '+dateEntered.getDate()+', '+dateEntered.getFullYear();
+        let search=startDateEntered.toLocaleString('default', { month: 'short' })+'. '+startDateEntered.getDate()+', '+startDateEntered.getFullYear();
+        let search2=endDateEntered.toLocaleString('default', { month: 'short' })+'. '+endDateEntered.getDate()+', '+endDateEntered.getFullYear();
         // console.log(search)
         let els=document.getElementsByClassName('itemDate');
           for(var i = 0; i < els.length; i++){
-            // console.log(els[i].innerHTML.slice(0,12));
-            if (els[i].innerHTML.slice(0,12)==search) {
+            console.log(els[i].innerHTML.slice(0,12));
+            if (els[i].innerHTML.slice(0,12)>=search & els[i].innerHTML.slice(0,12)<=search2) {
                 els[i].parentElement.style.display='';
             }else{
                 els[i].parentElement.style.display='none';
             }
           }
     }
+
+    window.onload=function (){
+      let d=new Date();
+      let date = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+      let els=document.getElementsByClassName('date');
+      for(var i = 0; i < els.length; i++){
+          els[i].value=date;
+        }
+        // itemList();
+      searchByDate();
+    }
+    // document.forms['getList'].submit();
+
+    // csrf token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // function itemList() {
+    //   let start=document.getElementById('start').value;
+    //   let end=document.getElementById('end').value;
+    //     fetch('ExpenseItem', {
+    //         method: "POST",
+    //         body: JSON.stringify({
+    //             'start': start,
+    //             'end': end
+    //         }),
+    //         headers: {
+    //             'X-CSRFToken': csrftoken,
+    //             "Content-type": "application/json; charset=UTF-8"
+    //         }})
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log(JSON.parse(data)); 
+    //             data=JSON.parse(data);
+    //             var arrayLength = data.length;
+    //             for (var i = 0; i < arrayLength; i++) {
+    //               console.log(data[i].name);
+    //               //Do something
+    //               }
+                
+    //             }            
+    //         );
+    // }
+    
+  
+    
 </script>
 {% endblock js %}

@@ -11,8 +11,10 @@ from django.http import JsonResponse
 from datetime import date
 from datetime import datetime
 from django.forms.models import model_to_dict
+from django.core.serializers import serialize
 from django.db.models import Sum
 from django.db.models.functions import Coalesce
+from django.db.models import Q
 
 #for bill print
 from django.http import HttpResponse
@@ -32,6 +34,7 @@ def report(request):
     paymentMethods=Order.objects.getPaymentMethodsSale(request.user)
     category=ProductCategory.objects.filter(user=request.user)
     expenseTotal=Expense.objects.filter(user=request.user).filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('price'), 0.0))
+    expenseMonth=Expense.objects.filter(user=request.user).filter(date_created__date__gte=date.today().replace(day=1)).aggregate(total=Coalesce(Sum('price'), 0.0))
     param={
         'todaySale':todaySale,
         'totalSale':totalSale,
@@ -42,7 +45,8 @@ def report(request):
         'takeawaySale':takeawaySale,
         'paymentMethods':paymentMethods,
         'categorys':category,
-        'expenseTotal':expenseTotal
+        'expenseTotal':expenseTotal,
+        'expenseMonth':expenseMonth
         }
     return render(request,'report.html',param)
 
@@ -91,6 +95,8 @@ def handleLogin(request):
 def GeneratePdf(request,id):
     try:
         order=Order.objects.get(id=id,user=request.user)
+        if order.cancel():
+            return HttpResponse("Not found")
     except Exception as e:
         order=None
         return HttpResponse("Not found")
@@ -230,6 +236,17 @@ def editProduct(request,id):
         return redirect('product')
 
 @login_required
+def deleteProduct(request,id):
+    try:
+        product=Product.objects.get(id=id,user=request.user)
+        product.is_active=False
+        product.save()
+        messages.success(request,f" product {product.name} has been deleted sucessfully")
+        return redirect('product')
+    except Exception as e:
+        return redirect('product')
+
+@login_required
 def orderHistory(request,id=None):
     if id is None:
         orders=Order.objects.filter(user=request.user).order_by('-date_created')
@@ -322,22 +339,20 @@ def addExpense(request):
         description=request.POST['description']
         type=request.POST['type']
         try:
-            expenseType=ExpenseType.objects.get(name=type,user=request.user)
+            expenseType=ExpenseType.objects.get(id=type,user=request.user)
         except Exception as e:
             expenseType=ExpenseType.objects.create(user=request.user,name=type)
             expenseType.save()
         newExpense=Expense.objects.create(user=request.user,name=itemName,price=price,description=description,type=expenseType)
         newExpense.save()
         messages.success(request,"Item added sucessfully!")
-    expenseTypes=ExpenseType.objects.filter(user=request.user)
-    param={'expenseTypes':expenseTypes}
-    return render(request,'addExpense.html',param)
+    return redirect('expense')
 
 @login_required
 def expense(request):
-    items=Expense.objects.filter(user=request.user)
-    expenseTypes=ExpenseType.objects.filter(user=request.user)
-    param={'items':items,'expenseTypes':expenseTypes}
+    expenseType=ExpenseType.objects.filter(user=request.user)
+    items=Expense.objects.filter(user=request.user).order_by('-date_created')
+    param={'expenseTypes':expenseType,'items':items}
     return render(request,'expense.html',param)
 
 @login_required

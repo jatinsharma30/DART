@@ -272,7 +272,7 @@ class Order(models.Model):
         return self.total()-self.taxAmount()
 
     def cancel(self):
-        if self.date_created>timezone.now() - datetime.timedelta(minutes=30):
+        if self.date_created.date()==timezone.now().date():
             return True
         return False
 

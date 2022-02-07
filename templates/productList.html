@@ -74,7 +74,8 @@
                 {% endif %}
                 <td>{{product.price}}</td>
                 <td>{{product.qty}}</td>
-                <td><a href={% url 'editProduct' product.id %} class="btn btn-primary">Edit</a></td>
+                <td><a href={% url 'editProduct' product.id %} class="btn btn-primary">Edit</a>
+                    <a href={% url 'deleteProduct' product.id %} class="btn btn-danger mx-2">Delete</a></td>
               </tr>
               {% endif %}
               {% endfor %}

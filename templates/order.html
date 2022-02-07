@@ -65,10 +65,12 @@
             <input class="form-control dropdown-toggle"  oninput="update()" id="product" placeholder="Type to search..." data-bs-toggle="dropdown" autocomplete="off">
             <ul class="dropdown-menu" id="dropdown-menu" style="max-height: 20vh;overflow-y: auto;">
                 {% for product in products %}
+                {% if product.is_active %}
                 {% if product.category %}
                 <li><a class="dropdown-item products" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}','{{product.category}}')" id="{{product.id}}">{{product.name}} ({{product.category}})</a></li>
                 {% else %}
                 <li><a class="dropdown-item products" onclick="updateList('{{product.id}}','{{product.name}}','{{product.price}}')" id="{{product.id}}">{{product.name}}</a></li>
+                {% endif %}
                 {% endif %}
                 {% endfor %}
               </ul>  

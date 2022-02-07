@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block homeActive %}active{% endblock homeActive %}
 {% block css %}
+{% load static %}
 <style>
     #msg{
         height: 80%;
@@ -22,6 +23,7 @@
     <div class="container position-relative" data-aos="fade-up" data-aos-delay="100">
       <div class="row justify-content-center">
         <div class="col-xl-7 col-lg-9 text-center">
+          <img src="{% static 'image/logo.jfif' %}" alt="" style="height: 40%;width: 20%;">
           <h1>Welcome To Dart</h1>
           <h2>Data Analysis and Reporting Tool</h2>
         </div>
