@@ -338,10 +338,11 @@ def addExpense(request):
         price=request.POST['price']
         description=request.POST['description']
         type=request.POST['type']
+        date=request.POST['date']
         try:
             expenseType=ExpenseType.objects.get(id=type,user=request.user)
         except Exception as e:
-            expenseType=ExpenseType.objects.create(user=request.user,name=type)
+            expenseType=ExpenseType.objects.create(user=request.user,name=type,date_created=date)
             expenseType.save()
         newExpense=Expense.objects.create(user=request.user,name=itemName,price=price,description=description,type=expenseType)
         newExpense.save()
