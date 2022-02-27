@@ -81,7 +81,7 @@
         </div>
         
       </div> -->
-      <form action="{% url 'expense' %}" method="post" name="getList">
+      <form action="{% url 'expense' %}" method="post">
         {% csrf_token %}
       <div class="row mx-5">
         <!-- <div class="col-sm-5 my-2">
@@ -95,14 +95,14 @@
         </div> -->
         <div class="col-sm-5 my-2">
           <label for="start" class="form-label">start Date<span class="text-danger ">*</span></label>
-          <input type="date" class="form-control date" id="start" name="start" autocomplete="off">
+          <input type="date" class="form-control date" id="start" name="start" autocomplete="off" required>
         </div>
         <div class="col-sm-5 my-2">
           <label for="end" class="form-label">end Date<span class="text-danger ">*</span></label>
-          <input type="date" class="form-control date" id="end" name="end" autocomplete="off">
+          <input type="date" class="form-control date" id="end" name="end" autocomplete="off" required>
         </div>
         <div class="col-sm-2 my-4 pt-3">
-          <button type="button" onclick="searchByDate()" class="btn btn-secondary">fetch</button>
+          <button type="submit"  class="btn btn-secondary">fetch</button>
         </div>
       </div>
     </form>
@@ -179,56 +179,57 @@
   //         }
   //       }
     
-    function searchByDate() {
-        let start=document.getElementById('start');
-        let end=document.getElementById('end');
-        // console.log(date.value);
-        let startDateEntered = new Date(start.value);
-        let endDateEntered = new Date(end.value);
-        // console.log(dateEntered);
-        let search=startDateEntered.toLocaleString('default', { month: 'short' })+'. '+startDateEntered.getDate()+', '+startDateEntered.getFullYear();
-        let search2=endDateEntered.toLocaleString('default', { month: 'short' })+'. '+endDateEntered.getDate()+', '+endDateEntered.getFullYear();
-        // console.log(search)
-        let els=document.getElementsByClassName('itemDate');
-          for(var i = 0; i < els.length; i++){
-            console.log(els[i].innerHTML.slice(0,12));
-            if (els[i].innerHTML.slice(0,12)>=search & els[i].innerHTML.slice(0,12)<=search2) {
-                els[i].parentElement.style.display='';
-            }else{
-                els[i].parentElement.style.display='none';
-            }
-          }
-    }
+    // function searchByDate() {
+    //     let start=document.getElementById('start');
+    //     let end=document.getElementById('end');
+    //     // console.log(date.value);
+    //     let startDateEntered = new Date(start.value);
+    //     let endDateEntered = new Date(end.value);
+    //     // console.log(dateEntered);
+    //     let search=startDateEntered.toLocaleString('default', { month: 'short' })+'. '+startDateEntered.getDate()+', '+startDateEntered.getFullYear();
+    //     let search2=endDateEntered.toLocaleString('default', { month: 'short' })+'. '+endDateEntered.getDate()+', '+endDateEntered.getFullYear();
+    //     console.log(search)
+    //     console.log(search2)
+    //     let els=document.getElementsByClassName('itemDate');
+    //       for(var i = 0; i < els.length; i++){
+    //         console.log(els[i].innerHTML.slice(0,13));
+    //         if (els[i].innerHTML.slice(0,12)>=search & els[i].innerHTML.slice(0,12)<=search2) {
+    //             els[i].parentElement.style.display='';
+    //         }else{
+    //             els[i].parentElement.style.display='none';
+    //         }
+    //       }
+    // }
 
-    window.onload=function (){
-      let d=new Date();
-      let date = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
-      let els=document.getElementsByClassName('date');
-      for(var i = 0; i < els.length; i++){
-          els[i].value=date;
-        }
-        // itemList();
-      searchByDate();
-    }
+    // window.onload=function (){
+      // let d=new Date();
+      // let date = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 10);
+      // let els=document.getElementsByClassName('date');
+      // for(var i = 0; i < els.length; i++){
+      //     els[i].value=date;
+      //   }
+      //   // itemList();
+      // searchByDate();
+    // }
     // document.forms['getList'].submit();
 
     // csrf token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
+    // function getCookie(name) {
+    //     let cookieValue = null;
+    //     if (document.cookie && document.cookie !== '') {
+    //         const cookies = document.cookie.split(';');
+    //         for (let i = 0; i < cookies.length; i++) {
+    //             const cookie = cookies[i].trim();
+    //             // Does this cookie string begin with the name we want?
+    //             if (cookie.substring(0, name.length + 1) === (name + '=')) {
+    //                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     return cookieValue;
+    // }
+    // const csrftoken = getCookie('csrftoken');
 
     // function itemList() {
     //   let start=document.getElementById('start').value;
@@ -258,6 +259,5 @@
     // }
     
   
-    
 </script>
 {% endblock js %}

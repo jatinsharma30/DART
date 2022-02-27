@@ -351,8 +351,16 @@ def addExpense(request):
 
 @login_required
 def expense(request):
+    if request.method=='POST':
+        start=request.POST['start']
+        end=request.POST['end']
+        # start=datetime.strptime(start, '%Y-%m-%d').date()
+        # end=datetime.strptime(end, '%Y-%m-%d').date()
+        q=Q(date_created__gte=start) & Q(date_created__lte=end)
+    else:
+        q=Q(date_created__gte=date.today()) & Q(date_created__lte=date.today())   
     expenseType=ExpenseType.objects.filter(user=request.user)
-    items=Expense.objects.filter(user=request.user)
+    items=Expense.objects.filter(user=request.user).filter(q)
     param={'expenseTypes':expenseType,'items':items}
     return render(request,'expense.html',param)
 
