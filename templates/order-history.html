@@ -90,7 +90,15 @@
             
         </div>
         <div class="row">
+          {% if order.saleType == 'Offline Sale' %}
           <div class="col-sm-4"><b>{{order.saleType}}</b></div>
+          {% else %}
+          {% if order.onlineSaleOption %}
+          <div class="col-sm-4"><b>{{order.saleType}}({{order.onlineSaleOption}})</b></div>
+          {% else %}
+          <div class="col-sm-4"><b>{{order.saleType}}</b></div>
+          {% endif %}
+          {% endif %}
           {% if not order.is_split %}
           <div class="col-sm-4"><b>{{order.payment_method}}</b></div>
           {% endif %}

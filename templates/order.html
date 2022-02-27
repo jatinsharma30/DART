@@ -95,6 +95,17 @@
             </div>
           </div>
         </div>
+        <div class="mb-2" id="online_option_container" style="display: none;">
+          <div class="row">
+            <div class="col">
+                <div class="d-inline-block me-1">Zomato</div>
+                <div class="form-check form-switch d-inline-block">
+                    <input type="checkbox" class="form-check-input" id="onlineOption" style="cursor: pointer;" name="onlineOption" value="Swiggy">
+                    <label for="onlineOption" class="form-check-label">Swiggy</label>
+                </div>
+            </div>
+          </div>
+        </div>
         <div class="mb-2" id="order_state_container">
           <div class="row">
             <div class="col">
@@ -346,12 +357,15 @@
       let online=document.getElementById('online');
       let offline=document.getElementById('offline');
       let order_state_container=document.getElementById('order_state_container');
+      let online_option_container=document.getElementById('online_option_container');
       let order_state=document.getElementById('order_state');
       if(online.checked){
         order_state_container.style.display="none";
+        online_option_container.style.display="block";
         order_state.checked=true;
       }else if(offline.checked){
         order_state_container.style.display="block";
+        online_option_container.style.display="none";
       }
     }
     

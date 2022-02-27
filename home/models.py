@@ -7,6 +7,8 @@ import datetime
 from django.utils import timezone
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 # Create your models here.
 class ExpenseType(models.Model):
@@ -180,56 +182,75 @@ class OrderManager(models.Manager):
         res={"count":count,'total':total}
         return res
     def getPaymentMethodsSale(self,user):
-        count=self.get_queryset().filter(user=user).count()
-        qsCash=self.get_queryset().filter(user=user).filter(payment_method='Cash')
-        qsCash2=self.get_queryset().filter(user=user).filter(payment_method2='Cash')
-        try:
-            cashCount=(qsCash.count()/count)*100
+        count=self.get_queryset().filter(user=user).filter(date_created__date=date.today()).count()
+        q=Q(payment_method='Cash') | Q(payment_method2='Cash')
+        qsCash=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='Cash').filter(date_created__date=date.today())
+        qsCash1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='Cash').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        # print(qsCash1['total']) 
+        qsCash2=self.get_queryset().filter(user=user).filter(payment_method2='Cash').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsCash3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
+        try: 
+            cashCount=(qsCash3.count()/count)*100
         except ZeroDivisionError:
             cashCount=0
-        qsAmazonPay=self.get_queryset().filter(user=user).filter(payment_method='Amazon Pay')
-        qsAmazonPay2=self.get_queryset().filter(user=user).filter(payment_method2='Amazon Pay')
+        q=Q(payment_method='Amazon Pay') | Q(payment_method2='Amazon Pay')
+        qsAmazonPay=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='Amazon Pay').filter(date_created__date=date.today())
+        qsAmazonPay1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='Amazon Pay').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        qsAmazonPay2=self.get_queryset().filter(user=user).filter(payment_method2='Amazon Pay').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsAmazonPay3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
         try:
-            amazonCount=(qsAmazonPay.count()/count)*100
+            amazonCount=(qsAmazonPay3.count()/count)*100
         except ZeroDivisionError:
             amazonCount=0
-        qsGooglePay=self.get_queryset().filter(user=user).filter(payment_method='Google Pay')
-        qsGooglePay2=self.get_queryset().filter(user=user).filter(payment_method2='Google Pay')
+        q=Q(payment_method='Google Pay') | Q(payment_method2='Google Pay')
+        qsGooglePay=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='Google Pay').filter(date_created__date=date.today())
+        qsGooglePay1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='Google Pay').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        qsGooglePay2=self.get_queryset().filter(user=user).filter(payment_method2='Google Pay').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsGooglePay3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
         try:
-            googleCount=(qsGooglePay.count()/count)*100
+            googleCount=(qsGooglePay3.count()/count)*100
         except ZeroDivisionError:
             googleCount=0
-        qsPaytm=self.get_queryset().filter(user=user).filter(payment_method='Paytm')
-        qsPaytm2=self.get_queryset().filter(user=user).filter(payment_method2='Paytm')
+        q=Q(payment_method='Paytm') | Q(payment_method2='Paytm')
+        qsPaytm=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='Paytm').filter(date_created__date=date.today())
+        qsPaytm1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='Paytm').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        qsPaytm2=self.get_queryset().filter(user=user).filter(payment_method2='Paytm').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsPaytm3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
         try:
-            paytmCount=(qsPaytm.count()/count)*100
+            paytmCount=(qsPaytm3.count()/count)*100
         except ZeroDivisionError:
             paytmCount=0
-        qsCard=self.get_queryset().filter(user=user).filter(payment_method='Card')
-        qsCard2=self.get_queryset().filter(user=user).filter(payment_method2='Card')
+        q=Q(payment_method='Card') | Q(payment_method2='Card')
+        qsCard=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='Card').filter(date_created__date=date.today())
+        qsCard1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='Card').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        qsCard2=self.get_queryset().filter(user=user).filter(payment_method2='Card').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsCard3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
         try:
-            cardCount=(qsCard.count()/count)*100
+            cardCount=(qsCard3.count()/count)*100
         except ZeroDivisionError:
             cardCount=0
-        qsPhonePe=self.get_queryset().filter(user=user).filter(payment_method='PhonePe')
-        qsPhonePe2=self.get_queryset().filter(user=user).filter(payment_method2='PhonePe')
+        q=Q(payment_method='PhonePe') | Q(payment_method2='PhonePe')
+        qsPhonePe=self.get_queryset().filter(user=user).filter(is_split=False).filter(payment_method='PhonePe').filter(date_created__date=date.today())
+        qsPhonePe1=self.get_queryset().filter(user=user).filter(is_split=True).filter(payment_method='PhonePe').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment1'), 0.0))
+        qsPhonePe2=self.get_queryset().filter(user=user).filter(payment_method2='PhonePe').filter(date_created__date=date.today()).aggregate(total=Coalesce(Sum('payment2'), 0.0))
+        qsPhonePe3=self.get_queryset().filter(user=user).filter(q).filter(date_created__date=date.today())
         try:
-            phonePeCount=(qsPhonePe.count()/count)*100
+            phonePeCount=(qsPhonePe3.count()/count)*100
         except ZeroDivisionError:
             phonePeCount=0
         res={
             'cashCount':cashCount,
-            'cashTotal':self.getTotalSaleByQuery(qsCash)+self.getTotalSaleByQuery(qsCash2),
+            'cashTotal':self.getTotalSaleByQuery(qsCash)+qsCash2['total']+qsCash1['total'],
             'amazonCount':amazonCount,
-            'amazonTotal':self.getTotalSaleByQuery(qsAmazonPay)+self.getTotalSaleByQuery(qsAmazonPay2),
+            'amazonTotal':self.getTotalSaleByQuery(qsAmazonPay)+qsAmazonPay1['total']+qsAmazonPay2['total'],
             'googleCount':googleCount,
-            'googleTotal':self.getTotalSaleByQuery(qsGooglePay)+self.getTotalSaleByQuery(qsGooglePay2),
+            'googleTotal':self.getTotalSaleByQuery(qsGooglePay)+qsGooglePay2['total']+qsGooglePay1['total'],
             'cardCount':cardCount,
-            'phonePeTotal':self.getTotalSaleByQuery(qsPhonePe)+self.getTotalSaleByQuery(qsPhonePe2),
+            'phonePeTotal':self.getTotalSaleByQuery(qsPhonePe)+qsPhonePe2['total']+qsPhonePe1['total'],
             'phonePeCount':phonePeCount,
-            'cardTotal':self.getTotalSaleByQuery(qsCard)+self.getTotalSaleByQuery(qsCard2),
+            'cardTotal':self.getTotalSaleByQuery(qsCard)+qsCard2['total']+qsCard1['total'],
             'paytmCount':paytmCount,
-            'paytmTotal':self.getTotalSaleByQuery(qsPaytm)+self.getTotalSaleByQuery(qsPaytm2)
+            'paytmTotal':self.getTotalSaleByQuery(qsPaytm)+qsPaytm2['total']+qsPaytm1['total']
         }
         return res
               
@@ -247,6 +268,11 @@ class Order(models.Model):
         ('Takeaway','Takeaway')
     )
     orderState=models.CharField(choices=orderStateChoices,default='Dine in',max_length=15)
+    onlineSaleChoices=(
+        ('Swiggy','Swiggy'),
+        ('Zomato','Zomato'),
+    )
+    onlineSaleOption=models.CharField(choices=onlineSaleChoices,null=True,blank=True,max_length=6)
     paymentChoices=(
         ('Cash','Cash'),
         ('Amazon Pay','Amazon Pay'),
