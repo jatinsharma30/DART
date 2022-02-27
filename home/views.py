@@ -95,10 +95,12 @@ def handleLogin(request):
 def GeneratePdf(request,id):
     try:
         order=Order.objects.get(id=id,user=request.user)
-        if order.cancel():
-            return HttpResponse("Not found")
+        # if order.cancel():
+        #     print('yes1')
+        #     return HttpResponse("Not found")
     except Exception as e:
         order=None
+        # print('yes')
         return HttpResponse("Not found")
     # template = get_template('invoice.html')
     context = {'order':order}
@@ -113,6 +115,7 @@ def GeneratePdf(request,id):
             content = "attachment; filename='%s'" %(filename)
         response['Content-Disposition'] = content
         return response
+    # print('yes3')
     return HttpResponse("Not found")
 
 @login_required

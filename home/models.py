@@ -211,6 +211,12 @@ class OrderManager(models.Manager):
             cardCount=(qsCard.count()/count)*100
         except ZeroDivisionError:
             cardCount=0
+        qsPhonePe=self.get_queryset().filter(user=user).filter(payment_method='PhonePe')
+        qsPhonePe2=self.get_queryset().filter(user=user).filter(payment_method2='PhonePe')
+        try:
+            phonePeCount=(qsPhonePe.count()/count)*100
+        except ZeroDivisionError:
+            phonePeCount=0
         res={
             'cashCount':cashCount,
             'cashTotal':self.getTotalSaleByQuery(qsCash)+self.getTotalSaleByQuery(qsCash2),
@@ -219,6 +225,8 @@ class OrderManager(models.Manager):
             'googleCount':googleCount,
             'googleTotal':self.getTotalSaleByQuery(qsGooglePay)+self.getTotalSaleByQuery(qsGooglePay2),
             'cardCount':cardCount,
+            'phonePeTotal':self.getTotalSaleByQuery(qsPhonePe)+self.getTotalSaleByQuery(qsPhonePe2),
+            'phonePeCount':phonePeCount,
             'cardTotal':self.getTotalSaleByQuery(qsCard)+self.getTotalSaleByQuery(qsCard2),
             'paytmCount':paytmCount,
             'paytmTotal':self.getTotalSaleByQuery(qsPaytm)+self.getTotalSaleByQuery(qsPaytm2)
@@ -243,6 +251,7 @@ class Order(models.Model):
         ('Cash','Cash'),
         ('Amazon Pay','Amazon Pay'),
         ('Google Pay','Google Pay'),
+        ('PhonePe','PhonePe'),
         ('Paytm','Paytm'),
         ('Card','Card')
     )
