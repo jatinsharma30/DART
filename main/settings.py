@@ -32,7 +32,7 @@ SECRET_KEY = 'django-insecure-dahcb1*m4t#a#nrfydq&=!!omry_6630!l*7gfke8b^(ta3o(8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dart.up.railway.app']
 
 
 # Application definition
