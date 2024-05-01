@@ -3,7 +3,7 @@
 link- http://orderstat.herokuapp.com/
 
 It is reporting tool created for a restaurant to analyze their sales and inventory.
-Login credentials: id- jatinsharma300802@gmail.com password-testpass123 (Only Admin's can login in the same)
+Login credentials: id- try@gmail.com password-testpass123 (Only Admin's can login in the same)
 In this I have used: Django, HTML, CSS, Javascript, chart.js(for graphs), bootstrap, and Heroku for hosting.
 
 <h4>Reports Section </h4>
